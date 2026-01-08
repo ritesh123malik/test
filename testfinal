@@ -1,0 +1,4567 @@
+<!DOCTYPE html>
+
+<html lang="en" class="dark">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>LNMIIT | Recover & Return</title>
+
+    
+
+    <meta name="theme-color" content="#020617">
+
+    <meta name="description" content="The official LNMIIT lost-and-found portal. Report lost items, browse the live feed, and use smart QR tags to secure your gear.">
+
+    
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/dist/tf.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+
+
+
+    <script>
+
+        tailwind.config = {
+
+            darkMode: 'class',
+
+            theme: {
+
+                extend: {
+
+                    fontFamily: { 
+
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+
+                        display: ['"Outfit"', 'sans-serif']
+
+                    },
+
+                    colors: {
+
+                        midnight: '#020617', 
+
+                        surface: '#0f172a',
+
+                        electric: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
+
+                        neon: { 400: '#22d3ee', 500: '#06b6d4' },
+
+                        gold: { 400: '#fbbf24', 500: '#f59e0b' },
+
+                        emerald: { 400: '#34d399', 500: '#10b981' }
+
+                    },
+
+                    animation: { 
+
+                        'blob': 'blob 15s infinite alternate',
+
+                        'float': 'float 6s ease-in-out infinite',
+
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+
+                        'fade-up': 'fadeUp 0.8s ease-out forwards',
+
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+
+                        'scale-in': 'scaleIn 0.5s ease-out forwards',
+
+                        'shimmer': 'shimmer 2s linear infinite',
+
+                        'bounce-slow': 'bounce 3s infinite',
+
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+
+                    },
+
+                    keyframes: { 
+
+                        blob: {
+
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+
+                            '33%': { transform: 'translate(30px, -50px) scale(1.2)' },
+
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.8)' },
+
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+
+                        },
+
+                        float: {
+
+                            '0%, 100%': { transform: 'translateY(0)' },
+
+                            '50%': { transform: 'translateY(-20px)' }
+
+                        },
+
+                        fadeUp: {
+
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+
+                        },
+
+                        slideUp: {
+
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+
+                        },
+
+                        scaleIn: {
+
+                            '0%': { opacity: '0', transform: 'scale(0.9)' },
+
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+
+                        },
+
+                        shimmer: {
+
+                            '0%': { backgroundPosition: '-1000px 0' },
+
+                            '100%': { backgroundPosition: '1000px 0' }
+
+                        },
+
+                        glow: {
+
+                            '0%': { boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)' },
+
+                            '100%': { boxShadow: '0 0 40px rgba(34, 211, 238, 0.8)' }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+
+
+    <style>
+        /* AI Chat Scrollbar */
+#aiMessages::-webkit-scrollbar { width: 4px; }
+#aiMessages::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 2px; }
+
+/* User Message Bubble */
+.msg-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border-radius: 1rem 1rem 0 1rem;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    max-width: 85%;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    margin-left: auto;
+    word-wrap: break-word;
+}
+
+/* AI Message Bubble */
+.msg-ai {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    border-radius: 1rem 1rem 1rem 0;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    max-width: 85%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    gap: 0.5rem;
+    word-wrap: break-word;
+}
+
+/* Typing Animation */
+.typing-dot {
+    width: 4px; height: 4px; background: #60a5fa; border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+        body { 
+
+            background-color: #020617; 
+
+            color: #f8fafc; 
+
+            overflow-x: hidden; 
+
+            -webkit-tap-highlight-color: transparent; 
+
+        }
+
+
+
+        /* Glass Effects */
+
+        .glass-panel {
+
+            background: rgba(15, 23, 42, 0.65);
+
+            backdrop-filter: blur(20px);
+
+            -webkit-backdrop-filter: blur(20px);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+        }
+
+        
+
+        .glass-input {
+
+            background: rgba(255, 255, 255, 0.03)!important;
+
+            border: 1px solid rgba(255, 255, 255, 0.1)!important;
+
+            color: white!important;
+
+            transition: all 0.3s ease;
+
+        }
+
+        .glass-input:focus {
+
+            background: rgba(255, 255, 255, 0.08)!important;
+
+            border-color: #8b5cf6!important;
+
+            outline: none;
+
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+
+        }
+
+
+
+        /* Hero Gradient */
+
+        .hero-gradient-text {
+
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #22d3ee 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            animation: shimmer 3s linear infinite;
+
+            background-size: 200% 100%;
+
+        }
+
+
+
+        /* Mesh Background */
+
+        .mesh-bg { 
+
+            position: fixed; 
+
+            top: 0; 
+
+            left: 0; 
+
+            width: 100vw; 
+
+            height: 100vh; 
+
+            z-index: -1; 
+
+            overflow: hidden; 
+
+            background: #020617; 
+
+        }
+
+        .mesh-orb { 
+
+            position: absolute; 
+
+            border-radius: 50%; 
+
+            filter: blur(100px); 
+
+            opacity: 0.4; 
+
+        }
+
+
+
+        /* Utility Classes */
+
+        .hidden-ui { display: none!important; }
+
+        
+
+        .btn-primary {
+
+            background: linear-gradient(135deg, #7c3aed, #22d3ee);
+
+            position: relative; 
+
+            overflow: hidden; 
+
+            transition: all 0.3s;
+
+        }
+
+        .btn-primary:hover { 
+
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); 
+
+            transform: translateY(-2px) scale(1.02); 
+
+        }
+
+        .btn-primary::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: -100%;
+
+            width: 100%;
+
+            height: 100%;
+
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+
+            transition: left 0.5s;
+
+        }
+
+        .btn-primary:hover::before {
+
+            left: 100%;
+
+        }
+
+        
+
+        /* Skeleton Loader */
+
+        .skeleton {
+
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+
+            background-size: 200% 100%;
+
+            animation: shimmer 2s infinite;
+
+            border-radius: 0.5rem;
+
+        }
+
+
+
+        /* Card Hover Effects */
+
+        .card-hover {
+
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+        }
+
+        .card-hover:hover {
+
+            transform: translateY(-8px) scale(1.02);
+
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
+
+        }
+
+
+
+        /* Progress Bar */
+
+        .progress-bar {
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .progress-bar::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            height: 100%;
+
+            background: linear-gradient(90deg, #7c3aed, #22d3ee);
+
+            transition: width 0.5s ease;
+
+        }
+
+
+
+        /* Badge Glow */
+
+        .badge-glow {
+
+            animation: glow 2s ease-in-out infinite alternate;
+
+        }
+
+
+
+        /* Map Styles */
+
+        .leaflet-container { 
+
+            z-index: 0; 
+
+            border-radius: 1rem; 
+
+            font-family: 'Plus Jakarta Sans'; 
+
+            background: #f0f0f0!important; 
+
+        }
+
+        .leaflet-popup-content-wrapper {
+
+            background: rgba(15, 23, 42, 0.95);
+
+            backdrop-filter: blur(10px);
+
+            color: white;
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            border-radius: 1rem;
+
+        }
+
+        .leaflet-popup-tip { background: rgba(15, 23, 42, 0.95); }
+
+        
+
+        .custom-pin { position: relative; width: 20px; height: 20px; }
+
+        .pin-inner { 
+
+            width: 16px; 
+
+            height: 16px; 
+
+            background: #22d3ee; 
+
+            border: 2px solid white; 
+
+            border-radius: 50%; 
+
+            position: absolute; 
+
+            top: 2px; 
+
+            left: 2px; 
+
+            z-index: 10; 
+
+            box-shadow: 0 0 15px #22d3ee; 
+
+        }
+
+        .pin-pulse { 
+
+            position: absolute; 
+
+            top: -2px; 
+
+            left: -2px; 
+
+            width: 24px; 
+
+            height: 24px; 
+
+            background: rgba(34, 211, 238, 0.4); 
+
+            border-radius: 50%; 
+
+            animation: pulse-ring 2s infinite; 
+
+        }
+
+        @keyframes pulse-ring { 
+
+            0% { transform: scale(0.8); opacity: 1; } 
+
+            100% { transform: scale(2.5); opacity: 0; } 
+
+        }
+
+
+
+        /* Toggle Switch */
+
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+
+
+
+        /* Achievement Badge */
+
+        .achievement-badge {
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .achievement-badge::after {
+
+            content: '✓';
+
+            position: absolute;
+
+            top: -2px;
+
+            right: -2px;
+
+            background: #10b981;
+
+            color: white;
+
+            font-size: 10px;
+
+            width: 18px;
+
+            height: 18px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border: 2px solid #020617;
+
+        }
+
+
+
+        /* Mobile Bottom Nav */
+
+        @media (max-width: 768px) {
+
+            .mobile-nav {
+
+                position: fixed;
+
+                bottom: 0;
+
+                left: 0;
+
+                right: 0;
+
+                z-index: 50;
+
+                transform: translateY(0);
+
+                transition: transform 0.3s;
+
+            }
+
+            .mobile-nav.hidden {
+
+                transform: translateY(100%);
+
+            }
+
+        }
+
+
+
+        /* Smooth Scrollbar */
+
+        ::-webkit-scrollbar {
+
+            width: 8px;
+
+            height: 8px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+
+            background: rgba(15, 23, 42, 0.5);
+
+        }
+
+        ::-webkit-scrollbar-thumb {
+
+            background: rgba(139, 92, 246, 0.5);
+
+            border-radius: 4px;
+
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: rgba(139, 92, 246, 0.8);
+
+        }
+
+
+
+        /* Loading Spinner */
+
+        .spinner {
+
+            border: 3px solid rgba(255, 255, 255, 0.1);
+
+            border-top: 3px solid #8b5cf6;
+
+            border-radius: 50%;
+
+            width: 40px;
+
+            height: 40px;
+
+            animation: spin 1s linear infinite;
+
+        }
+
+        @keyframes spin {
+
+            0% { transform: rotate(0deg); }
+
+            100% { transform: rotate(360deg); }
+
+        }
+
+        
+
+        .achievement-item.locked { opacity: 0.4; }
+
+        .achievement-item.unlocked { animation: scaleIn 0.5s ease-out; }
+
+        
+
+        .category-pill.active {
+
+            background: linear-gradient(135deg, #7c3aed, #22d3ee);
+
+            color: white;
+
+            border-color: transparent;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="flex flex-col min-h-screen relative antialiased selection:bg-electric-500 selection:text-white">
+
+
+
+    <div class="mesh-bg">
+
+        <div class="mesh-orb w-[60vw] h-[60vw] bg-electric-900/50 top-[-20%] left-[-20%] animate-blob"></div>
+
+        <div class="mesh-orb w-[50vw] h-[50vw] bg-neon-900/40 bottom-[-20%] right-[-20%] animate-blob" style="animation-delay: 5s"></div>
+
+        <div style="position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+    </div>
+
+
+
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-midnight/90 backdrop-blur-xl">
+
+        <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+
+            <div class="flex items-center gap-3 cursor-pointer group relative" onclick="location.reload()">
+
+                <div class="relative">
+
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-600 to-neon-500 flex items-center justify-center shadow-lg shadow-electric-500/20 group-hover:scale-110 transition-transform duration-300">
+
+                        <i class="fa-solid fa-layer-group text-white"></i>
+
+                    </div>
+
+                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-midnight animate-pulse"></span>
+
+                </div>
+
+                <div>
+
+                    <h1 class="text-xl font-display font-bold tracking-tight text-white">LNMIIT<span class="text-electric-400">Portal</span></h1>
+
+                    <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">Lost & Found</p>
+
+                </div>
+
+            </div>
+
+            
+
+            <div id="userControls" class="hidden-ui flex items-center gap-4">
+
+                <div class="hidden md:flex items-center gap-3 glass-panel px-4 py-2 rounded-xl border border-white/10">
+
+                    <div class="flex items-center gap-2">
+
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-500 to-electric-500 flex items-center justify-center">
+
+                            <i class="fa-solid fa-star text-white text-xs"></i>
+
+                        </div>
+
+                        <div class="text-left">
+
+                            <div class="text-xs font-bold text-gold-400" id="navKarmaScore">0</div>
+
+                            <div class="text-[8px] text-slate-500 uppercase tracking-wider">Karma</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="hidden md:flex flex-col text-right">
+
+                    <span id="userNameDisplay" class="text-sm font-bold text-white">Student</span>
+
+                    <span id="userEmailDisplay" class="text-[10px] text-gray-400 font-mono truncate max-w-[150px]">user@lnmiit.ac.in</span>
+
+                </div>
+
+
+
+                <button onclick="window.logout()" class="w-10 h-10 rounded-full glass-panel hover:bg-red-500/20 hover:text-red-400 transition flex items-center justify-center border border-white/10 group">
+
+                    <i class="fa-solid fa-power-off group-hover:animate-pulse"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <div id="navProgress" class="hidden-ui h-1 bg-gradient-to-r from-electric-500 to-neon-500 transition-all duration-500" style="width: 0%;"></div>
+
+    </nav>
+
+
+
+    <main id="landingScreen" class="flex-grow flex flex-col items-center justify-center relative pt-20 animate-fade-up">
+
+        <div class="max-w-7xl w-full px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+
+            <div class="text-left space-y-8 order-2 lg:order-1">
+
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-electric-500/30 bg-electric-500/10 text-electric-300 text-xs font-bold uppercase tracking-widest animate-scale-in">
+
+                    <span class="w-2 h-2 rounded-full bg-electric-400 animate-pulse"></span>
+
+                    <span id="onlineCount">Live Campus Network</span>
+
+                </div>
+
+
+
+                <h1 class="text-6xl md:text-7xl font-display font-bold leading-tight">
+
+                    Lost it? <br>
+
+                    <span class="hero-gradient-text inline-block">We Found It.</span>
+
+                </h1>
+
+
+
+                <p class="text-lg text-slate-400 max-w-lg leading-relaxed">
+
+                    The official <span class="text-electric-400 font-bold">AI-powered</span> recovery hub for LNMIIT. Report lost items, browse the live feed, and use smart QR tags to secure your gear.
+
+                </p>
+
+
+
+                <div class="grid grid-cols-3 gap-4 pt-2">
+
+                    <div class="text-center">
+
+                        <div class="text-3xl font-display font-bold text-emerald-400" id="heroStat1">0</div>
+
+                        <div class="text-xs text-slate-500 uppercase tracking-wider">Items Returned</div>
+
+                    </div>
+
+                    <div class="text-center">
+
+                        <div class="text-3xl font-display font-bold text-electric-400" id="heroStat2">0%</div>
+
+                        <div class="text-xs text-slate-500 uppercase tracking-wider">Success Rate</div>
+
+                    </div>
+
+                    <div class="text-center">
+
+                        <div class="text-3xl font-display font-bold text-neon-400" id="heroStat3">0</div>
+
+                        <div class="text-xs text-slate-500 uppercase tracking-wider">Active Users</div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="flex flex-wrap gap-4 pt-4">
+
+                    <button onclick="window.enterSite()" class="btn-primary px-8 py-4 rounded-2xl text-white font-bold text-lg flex items-center gap-3 group">
+
+                        <span>Launch App</span> 
+
+                        <i class="fa-solid fa-rocket group-hover:animate-bounce"></i>
+
+                    </button>
+
+                    <button onclick="window.scrollToFeatures()" class="glass-panel px-8 py-4 rounded-2xl text-white font-bold text-lg flex items-center gap-3 hover:bg-white/10 transition border border-white/10">
+
+                        <span>Learn More</span>
+
+                        <i class="fa-solid fa-arrow-down"></i>
+
+                    </button>
+
+                </div>
+
+
+
+                <div class="flex items-center gap-6 pt-4">
+
+                    <div class="flex -space-x-3">
+
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-electric-500 to-neon-500 border-2 border-midnight"></div>
+
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-electric-500 border-2 border-midnight"></div>
+
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-500 to-emerald-500 border-2 border-midnight"></div>
+
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-500 to-electric-500 border-2 border-midnight flex items-center justify-center text-xs font-bold text-white">+50</div>
+
+                    </div>
+
+                    <div class="text-xs text-slate-400">
+
+                        <span class="font-bold text-white">154 students</span> helped this week
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="order-1 lg:order-2 relative flex justify-center">
+
+                <div class="relative w-80 h-96 md:w-96 md:h-[450px]">
+
+                    <div class="absolute inset-0 glass-panel rounded-3xl transform rotate-6 border border-white/20 flex flex-col items-center justify-center z-30 card-hover animate-float p-8">
+
+                        <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-neon-500 rounded-2xl flex items-center justify-center mb-4 shadow-2xl shadow-emerald-500/30 animate-bounce-slow">
+
+                            <i class="fa-solid fa-check text-4xl text-white"></i>
+
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-white mb-1">Match Found!</h3>
+
+                        <p class="text-slate-400 text-sm mb-2">AirPods Pro (Case)</p>
+
+                        <div class="mt-4 px-4 py-2 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30 badge-glow">
+
+                            <i class="fa-solid fa-bolt mr-1"></i>INSTANT MATCH
+
+                        </div>
+
+                        <div class="mt-3 text-xs text-slate-500">
+
+                            <i class="fa-solid fa-clock mr-1"></i>2 minutes ago
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="absolute inset-0 glass-panel rounded-3xl transform -rotate-6 scale-95 z-20 border border-electric-500/20 opacity-70"></div>
+
+                    
+
+                    <div class="absolute inset-0 bg-surface/30 rounded-3xl transform rotate-3 scale-90 z-10 border border-white/5 opacity-40"></div>
+
+
+
+                    <div class="absolute -top-4 -right-4 w-16 h-16 bg-electric-500/20 rounded-full blur-xl animate-pulse-slow z-0"></div>
+
+                    <div class="absolute -bottom-4 -left-4 w-20 h-20 bg-neon-500/20 rounded-full blur-xl animate-pulse-slow z-0" style="animation-delay: 1s;"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div id="featuresSection" class="max-w-7xl w-full px-6 py-20 mt-20">
+
+            <h2 class="text-4xl font-display font-bold text-center text-white mb-4">Powerful Features</h2>
+
+            <p class="text-center text-slate-400 mb-16 max-w-2xl mx-auto">Everything you need to recover lost items on campus, powered by cutting-edge technology.</p>
+
+            
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <div class="glass-panel p-8 rounded-3xl text-center card-hover border border-white/5">
+
+                    <div class="w-16 h-16 mx-auto mb-6 bg-electric-500/20 rounded-2xl flex items-center justify-center">
+
+                        <i class="fa-solid fa-brain text-3xl text-electric-400"></i>
+
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3">AI Matching</h3>
+
+                    <p class="text-slate-400 text-sm leading-relaxed">Smart algorithms instantly match lost items with found ones using image recognition and text analysis.</p>
+
+                </div>
+
+
+
+                <div class="glass-panel p-8 rounded-3xl text-center card-hover border border-white/5">
+
+                    <div class="w-16 h-16 mx-auto mb-6 bg-neon-500/20 rounded-2xl flex items-center justify-center">
+
+                        <i class="fa-solid fa-qrcode text-3xl text-neon-400"></i>
+
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3">Smart Tags</h3>
+
+                    <p class="text-slate-400 text-sm leading-relaxed">Generate QR codes for your valuables. Anyone who finds them can scan and notify you instantly.</p>
+
+                </div>
+
+
+
+                <div class="glass-panel p-8 rounded-3xl text-center card-hover border border-white/5">
+
+                    <div class="w-16 h-16 mx-auto mb-6 bg-emerald-500/20 rounded-2xl flex items-center justify-center">
+
+                        <i class="fa-solid fa-trophy text-3xl text-emerald-400"></i>
+
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3">Rewards System</h3>
+
+                    <p class="text-slate-400 text-sm leading-relaxed">Earn karma points and badges for helping classmates recover their belongings.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <main id="authScreen" class="hidden-ui flex-grow flex items-center justify-center p-4 relative pt-20">
+
+        <div class="glass-panel p-10 rounded-[2rem] w-full max-w-md relative overflow-hidden animate-fade-up border-t border-white/20">
+
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-electric-500 to-neon-500"></div>
+
+            <div class="text-center mb-8">
+
+                <h2 class="text-3xl font-display font-bold text-white mb-2">Welcome Back</h2>
+
+                <p class="text-slate-400 text-sm">Login to access the secure portal</p>
+
+            </div>
+
+            <button onclick="window.handleGoogleLogin()" class="w-full bg-white hover:bg-gray-100 text-slate-900 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg group mb-8">
+
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+
+                <span>Sign in with Google</span>
+
+            </button>
+
+            <div class="relative flex py-2 items-center mb-8">
+
+                <div class="flex-grow border-t border-white/10"></div>
+
+                <span class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or use ID</span>
+
+                <div class="flex-grow border-t border-white/10"></div>
+
+            </div>
+
+            <div id="authForms">
+
+                <form id="loginForm" onsubmit="window.handleUsernameLogin(event)" class="space-y-5">
+
+                    <div class="group">
+
+                        <input type="text" id="login_input" placeholder="Roll No / Username / Email" required class="w-full p-4 glass-input rounded-xl text-sm placeholder-gray-500">
+
+                    </div>
+
+                    <div class="group">
+
+                        <input type="password" id="login_pass" placeholder="Password" required class="w-full p-4 glass-input rounded-xl text-sm placeholder-gray-500">
+
+                    </div>
+
+                    <div class="flex justify-end">
+
+                        <button type="button" onclick="window.toggleAuthMode('forgot')" class="text-xs text-electric-400 hover:text-white font-bold transition">Forgot Password?</button>
+
+                    </div>
+
+                    <button type="submit" id="loginBtn" class="w-full btn-primary py-4 rounded-xl font-bold text-white shadow-lg mt-2">Login</button>
+
+                    <p class="text-center text-xs text-slate-400 mt-6">
+
+                        First time? <button type="button" onclick="window.toggleAuthMode('signup')" class="text-electric-400 font-bold hover:text-white transition">Create Account</button>
+
+                    </p>
+
+                </form>
+
+                <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-5 hidden-ui">
+
+                    <input type="text" id="signup_name" placeholder="Full Name" required class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    <input type="email" id="signup_email" placeholder="Official Email Address" required class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    <input type="password" id="signup_pass" placeholder="Create Password" required class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    <button type="submit" id="signupBtn" class="w-full btn-primary py-4 rounded-xl font-bold text-white shadow-lg">Create Account</button>
+
+                    <p class="text-center text-xs text-slate-400 mt-6">
+
+                        Already have an account? <button type="button" onclick="window.toggleAuthMode('login')" class="text-electric-400 font-bold hover:text-white transition">Login</button>
+
+                    </p>
+
+                </form>
+
+                <form id="forgotForm" onsubmit="window.handleForgotPassword(event)" class="space-y-5 hidden-ui">
+
+                    <div class="text-center mb-4">
+
+                        <i class="fa-solid fa-key text-3xl text-electric-400 mb-2"></i>
+
+                        <p class="text-xs text-gray-400">Enter your email to receive a password reset link.</p>
+
+                    </div>
+
+                    <input type="email" id="forgot_email" placeholder="Email Address" required class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    <button type="submit" id="forgotBtn" class="w-full glass-panel hover:bg-white/10 py-4 rounded-xl font-bold text-white shadow-lg border border-white/10 transition">Send Reset Link</button>
+
+                    <p class="text-center text-xs text-gray-400 mt-6">
+
+                        <button type="button" onclick="window.toggleAuthMode('login')" class="text-gray-400 font-bold hover:text-white transition"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Login</button>
+
+                    </p>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <main id="appScreen" class="hidden-ui max-w-7xl mx-auto p-4 w-full pt-24 pb-32 animate-fade-up">
+
+        
+
+        <div class="glass-panel p-2 rounded-2xl mb-10 hidden md:flex overflow-x-auto gap-2 sticky top-24 z-40 mx-auto max-w-4xl shadow-2xl backdrop-blur-xl border border-white/10">
+
+            <button onclick="window.switchTab('report')" id="tab-report" class="flex-1 btn-primary px-6 py-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 whitespace-nowrap relative group overflow-hidden">
+
+                <i class="fa-solid fa-plus-circle group-hover:rotate-90 transition-transform duration-300"></i>
+
+                <span>Report</span>
+
+                <div class="absolute inset-0 bg-white/10 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+
+            </button>
+
+            <button onclick="window.switchTab('feed')" id="tab-feed" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center gap-2 transition whitespace-nowrap relative group">
+
+                <i class="fa-solid fa-stream"></i>
+
+                <span>Feed</span>
+
+            </button>
+
+            <button onclick="window.switchTab('qr')" id="tab-qr" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center gap-2 transition whitespace-nowrap">
+
+                <i class="fa-solid fa-qrcode"></i>
+
+                <span>Tags</span>
+
+            </button>
+
+            <button onclick="window.switchTab('profile')" id="tab-profile" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center gap-2 transition whitespace-nowrap">
+
+                <i class="fa-solid fa-user-gear"></i>
+
+                <span>Profile</span>
+
+            </button>
+            <button onclick="window.switchTab('support')" id="tab-support" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center gap-2 transition whitespace-nowrap">
+    <i class="fa-solid fa-headset"></i>
+    <span>Support</span>
+</button>
+
+            <button onclick="window.switchTab('admin')" id="tab-admin" class="hidden-ui flex-1 px-6 py-4 rounded-xl text-sm font-bold text-red-400 hover:bg-red-500/10 flex items-center justify-center gap-2 transition whitespace-nowrap">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <span>Admin</span>
+
+            </button>
+
+        </div>
+
+
+
+        <div class="mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-white/10 px-4 py-3 flex justify-around items-center backdrop-blur-xl">
+
+            <button onclick="window.switchTab('report')" id="tab-report-mobile" class="flex flex-col items-center gap-1 text-electric-400 group">
+
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-electric-600 to-neon-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+
+                    <i class="fa-solid fa-plus text-white text-lg"></i>
+
+                </div>
+
+                <span class="text-[10px] font-bold uppercase tracking-wider">Report</span>
+
+            </button>
+
+            <button onclick="window.switchTab('feed')" id="tab-feed-mobile" class="flex flex-col items-center gap-1 text-slate-400 group relative">
+
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition">
+
+                    <i class="fa-solid fa-stream text-lg"></i>
+
+                </div>
+
+                <span class="text-[10px] font-bold uppercase tracking-wider">Feed</span>
+
+            </button>
+                <button onclick="window.switchTab('support')" id="tab-support-mobile" class="flex flex-col items-center gap-1 text-slate-400 group">
+    <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition">
+        <i class="fa-solid fa-headset text-lg"></i>
+    </div>
+    <span class="text-[10px] font-bold uppercase tracking-wider">Help</span>
+</button>
+
+
+            <button onclick="window.switchTab('qr')" id="tab-qr-mobile" class="flex flex-col items-center gap-1 text-slate-400 group">
+
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition">
+
+                    <i class="fa-solid fa-qrcode text-lg"></i>
+
+                </div>
+
+                <span class="text-[10px] font-bold uppercase tracking-wider">Tags</span>
+
+            </button>
+
+            <button onclick="window.switchTab('profile')" id="tab-profile-mobile" class="flex flex-col items-center gap-1 text-slate-400 group">
+
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition">
+
+                    <i class="fa-solid fa-user-gear text-lg"></i>
+
+                </div>
+
+                <span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+
+            </button>
+
+        </div>
+
+
+
+        <div id="view-report" class="pb-24 md:pb-0">
+
+            <div class="glass-panel p-6 rounded-2xl mb-8 max-w-4xl mx-auto">
+
+                <div class="flex justify-between items-center mb-4">
+
+                    <h3 class="text-sm font-bold text-white">Form Progress</h3>
+
+                    <span id="formProgress" class="text-sm font-bold text-electric-400">0%</span>
+
+                </div>
+
+                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+
+                    <div id="progressFill" class="h-full bg-gradient-to-r from-electric-500 to-neon-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+
+                </div>
+
+                <div class="flex justify-between mt-3">
+
+                    <span class="text-xs text-slate-500"><i class="fa-solid fa-circle-check text-electric-400"></i> Details</span>
+
+                    <span class="text-xs text-slate-500"><i class="fa-solid fa-circle text-slate-700"></i> Photo</span>
+
+                    <span class="text-xs text-slate-500"><i class="fa-solid fa-circle text-slate-700"></i> Location</span>
+
+                    <span class="text-xs text-slate-500"><i class="fa-solid fa-circle text-slate-700"></i> Contact</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div class="lg:col-span-2 glass-panel p-8 rounded-[2rem] card-hover">
+
+                    <h2 class="text-3xl font-display font-bold text-white mb-8 flex items-center gap-4">
+
+                        <div class="w-12 h-12 rounded-2xl bg-electric-500/20 flex items-center justify-center text-electric-400"><i class="fa-solid fa-pen-to-square"></i></div>
+
+                        Submit Report
+
+                    </h2>
+
+                    
+
+                    <form id="reportForm" onsubmit="window.submitReport(event)" class="space-y-8">
+
+                        <div class="relative pl-6 border-l-4 border-electric-500/30 pb-2">
+
+                            <span class="absolute -left-[13px] top-0 w-6 h-6 rounded-full bg-electric-500 ring-4 ring-midnight flex items-center justify-center text-white text-xs font-bold">1</span>
+
+                            <h3 class="text-xs font-bold text-electric-400 uppercase tracking-widest mb-6 ml-2">Basic Details</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                                <div>
+
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2 block flex items-center gap-2"><i class="fa-solid fa-tag text-electric-400"></i> Status</label>
+
+                                    <select id="r_type" class="w-full p-4 glass-input rounded-xl cursor-pointer text-sm font-medium" onchange="window.checkSentinel(); window.updateFormProgress()">
+
+                                        <option value="Lost">🙁 I Lost Something</option>
+
+                                        <option value="Found">🕵️ I Found Something</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div>
+
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2 block flex items-center gap-2"><i class="fa-solid fa-box text-electric-400"></i> Item Name</label>
+
+                                    <input id="r_item" type="text" placeholder="e.g. Blue Hydroflask" required class="w-full p-4 glass-input rounded-xl text-sm font-medium" onkeyup="window.checkSentinel(); window.updateFormProgress()" oninput="window.showAutoComplete(this.value)">
+
+                                    <div id="autoComplete" class="hidden-ui mt-2 glass-panel rounded-xl border border-white/10 overflow-hidden"></div>
+
+                                </div>
+
+                            </div>
+
+                            <div id="sentinelAlert" class="hidden-ui mt-6 bg-neon-500/10 border border-neon-500/20 p-4 rounded-xl flex items-center gap-4 animate-pulse card-hover">
+
+                                <div class="bg-neon-500/20 p-3 rounded-full h-10 w-10 flex items-center justify-center"><i class="fa-solid fa-bell text-neon-400"></i></div>
+
+                                <div class="flex-1">
+
+                                    <p class="font-bold text-neon-300 text-sm">🎯 Potential Match Found!</p>
+
+                                    <p class="text-neon-400/70 text-xs">Similar item exists. Check feed before posting.</p>
+
+                                </div>
+
+                                <button type="button" onclick="window.switchTab('feed')" class="px-4 py-2 bg-neon-500/20 hover:bg-neon-500 text-neon-400 hover:text-white rounded-lg text-xs font-bold transition">View <i class="fa-solid fa-arrow-right ml-1"></i></button>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="relative pl-6 border-l-4 border-white/10 pb-2">
+
+                            <span class="absolute -left-[13px] top-0 w-6 h-6 rounded-full bg-surface border-2 border-white/20 ring-4 ring-midnight flex items-center justify-center text-white text-xs font-bold">2</span>
+
+                            <h3 class="text-xs font-bold text-electric-400 uppercase tracking-widest mb-6 ml-2">Visual Evidence</h3>
+
+                            <div class="space-y-4">
+
+                                <div class="relative group">
+
+                                    <input type="file" id="r_image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="window.handleSmartUpload(this)">
+
+                                    <div class="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center group-hover:border-electric-500 group-hover:bg-electric-500/5 transition-all cursor-pointer">
+
+                                        <div class="mb-4 bg-gradient-to-br from-electric-500/20 to-neon-500/20 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fa-solid fa-camera text-electric-400 text-2xl"></i></div>
+
+                                        <span id="fileLabel" class="text-sm font-bold text-slate-300 block mb-2">📸 Tap to upload photo</span>
+
+                                        <span class="text-[10px] text-slate-500 uppercase tracking-wide block mb-2"><i class="fa-solid fa-sparkles text-gold-400 mr-1"></i>Google Cloud Vision AI Enabled</span>
+
+                                        <span class="text-[9px] text-slate-600">Max 10MB • JPG, PNG</span>
+
+                                    </div>
+
+                                    <div id="imagePreviewContainer" class="hidden-ui mt-4 relative">
+
+                                        <img id="aiPreview" alt="Preview" class="h-48 w-full rounded-xl object-cover border-2 border-electric-500/30 shadow-lg">
+
+                                        <button type="button" onclick="window.removeImage()" class="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+
+                                    </div>
+
+                                    <div id="aiStatus" class="hidden-ui mt-3 p-3 bg-electric-500/10 rounded-lg border border-electric-500/20"></div>
+
+                                </div>
+
+                                <div class="relative">
+
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2 block flex items-center gap-2"><i class="fa-solid fa-align-left text-electric-400"></i> Description <span class="text-[9px] text-slate-600 normal-case" id="charCount">0 / 500</span></label>
+
+                                    <textarea id="r_desc" rows="4" placeholder="Distinguishing features, color, condition, where lost..." required class="w-full p-4 glass-input rounded-xl text-sm font-medium resize-none" maxlength="500" oninput="window.updateCharCount(); window.updateFormProgress()"></textarea>
+
+                                    <button type="button" onclick="window.startDictation()" class="absolute right-3 bottom-3 p-2 text-slate-500 hover:text-electric-400 transition bg-white/5 rounded-lg hover:bg-white/10"><i class="fa-solid fa-microphone"></i></button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="relative pl-6 border-l-4 border-white/10">
+
+                            <span class="absolute -left-[13px] top-0 w-6 h-6 rounded-full bg-surface border-2 border-white/20 ring-4 ring-midnight flex items-center justify-center text-white text-xs font-bold">3</span>
+
+                            <h3 class="text-xs font-bold text-electric-400 uppercase tracking-widest mb-6 ml-2">Contact & Privacy</h3>
+
+                            <div class="space-y-6">
+
+                                <div>
+
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2 block flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-400"></i> WhatsApp Number</label>
+
+                                    <div class="relative">
+
+                                        <span class="absolute left-4 top-4 text-slate-500">+91</span>
+
+                                        <input id="r_phone" type="tel" placeholder="9876543210" class="w-full pl-14 p-4 glass-input rounded-xl text-sm font-medium" pattern="[0-9]{10}" oninput="window.updateFormProgress()">
+
+                                    </div>
+
+                                    <p class="text-[10px] text-slate-600 mt-1 ml-1">Optional • For direct WhatsApp contact</p>
+
+                                </div>
+
+                                <div class="flex items-center bg-white/5 p-5 rounded-xl border border-white/5 hover:bg-white/8 transition">
+
+                                    <div class="flex-grow">
+
+                                        <h4 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-user-secret text-slate-400"></i> Anonymous Mode</h4>
+
+                                        <p class="text-xs text-slate-400 mt-1">Hide your identity in the public feed</p>
+
+                                    </div>
+
+                                    <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+
+                                        <input type="checkbox" id="r_anon" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-700" onchange="window.updateFormProgress()"/>
+
+                                        <label for="r_anon" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-700 cursor-pointer"></label>
+
+                                    </div>
+
+                                </div>
+
+                                <button type="submit" id="submitBtn" class="w-full btn-primary py-5 rounded-xl font-bold text-white shadow-xl flex justify-center items-center gap-3 text-lg group">
+
+                                    <span>Post Report</span> <i class="fa-solid fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+
+                <div class="glass-panel p-6 rounded-[2rem] h-fit sticky top-40 card-hover">
+
+                    <h3 class="font-bold text-white mb-4 flex items-center gap-2 text-lg"><i class="fa-solid fa-map-pin text-electric-400"></i> Location Pin</h3>
+
+                    <div id="map" class="h-80 w-full rounded-2xl z-0 border-2 border-electric-500/20 shadow-inner overflow-hidden"></div>
+
+                    <input type="hidden" id="r_lat"><input type="hidden" id="r_lng">
+
+                    <div class="mt-4 space-y-2">
+
+                        <button type="button" onclick="window.useCurrentLocation()" class="w-full p-3 bg-electric-500/10 hover:bg-electric-500/20 text-electric-400 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> Use Current Location</button>
+
+                        <p class="text-xs text-slate-500 text-center"><i class="fa-solid fa-hand-pointer mr-1"></i> Or tap anywhere on map</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div id="view-feed" class="hidden-ui pb-24 md:pb-0">
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-center items-center border border-emerald-500/20 card-hover">
+
+                    <div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-check-circle text-emerald-400 text-xl"></i><span id="stat_recovered" class="text-3xl font-bold text-emerald-400 font-display">0</span></div>
+
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest">Returned</span>
+
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-center items-center border border-electric-500/20 card-hover">
+
+                    <div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-chart-line text-electric-400 text-xl"></i><span id="stat_rate" class="text-3xl font-bold text-electric-400 font-display">0%</span></div>
+
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest">Success Rate</span>
+
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-center items-center border border-neon-500/20 card-hover">
+
+                    <div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-clock text-neon-400 text-xl"></i><span id="stat_active" class="text-3xl font-bold text-neon-400 font-display">0</span></div>
+
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest">Active Items</span>
+
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-center items-center border border-gold-500/20 card-hover">
+
+                    <div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-users text-gold-400 text-xl"></i><span id="stat_users" class="text-3xl font-bold text-gold-400 font-display">0</span></div>
+
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest">Contributors</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
+
+                <button onclick="window.filterByCategory('All')" class="category-pill active px-5 py-2 rounded-full glass-panel text-sm font-bold whitespace-nowrap transition border border-white/10 hover:border-electric-500/50"><i class="fa-solid fa-layer-group mr-2"></i>All Items</button>
+
+                <button onclick="window.filterByCategory('Electronics')" class="category-pill px-5 py-2 rounded-full glass-panel text-sm font-bold whitespace-nowrap transition border border-white/10 hover:border-electric-500/50"><i class="fa-solid fa-laptop mr-2"></i>Electronics</button>
+
+                <button onclick="window.filterByCategory('ID Card')" class="category-pill px-5 py-2 rounded-full glass-panel text-sm font-bold whitespace-nowrap transition border border-white/10 hover:border-electric-500/50"><i class="fa-solid fa-id-card mr-2"></i>ID Cards</button>
+
+                <button onclick="window.filterByCategory('Books')" class="category-pill px-5 py-2 rounded-full glass-panel text-sm font-bold whitespace-nowrap transition border border-white/10 hover:border-electric-500/50"><i class="fa-solid fa-book mr-2"></i>Books</button>
+
+                <button onclick="window.filterByCategory('Water Bottle')" class="category-pill px-5 py-2 rounded-full glass-panel text-sm font-bold whitespace-nowrap transition border border-white/10 hover:border-electric-500/50"><i class="fa-solid fa-mug-hot mr-2"></i>Bottles</button>
+
+            </div>
+
+
+
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+
+                <div class="relative w-full md:max-w-lg group">
+
+                    <i class="fa-solid fa-search absolute left-5 top-5 text-slate-500 group-focus-within:text-electric-400 transition-colors z-10"></i>
+
+                    <input type="text" id="feedSearch" onkeyup="window.renderFeed()" placeholder="Search by item name, description..." class="w-full pl-14 pr-12 p-5 glass-input rounded-2xl text-sm font-medium shadow-lg">
+
+                    <button onclick="document.getElementById('feedSearch').value=''; window.renderFeed();" class="absolute right-3 top-4 p-2 text-slate-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
+
+                </div>
+
+                <div class="flex gap-3 w-full md:w-auto">
+
+                    <select id="feedFilter" onchange="window.renderFeed()" class="p-4 rounded-2xl text-sm font-bold glass-input cursor-pointer flex-grow md:flex-grow-0 border border-white/10">
+
+                        <option value="All">📦 All Items</option>
+
+                        <option value="Lost">😟 Lost Only</option>
+
+                        <option value="Found">🎯 Found Only</option>
+
+                    </select>
+
+                    <select id="feedSort" onchange="window.renderFeed()" class="p-4 rounded-2xl text-sm font-bold glass-input cursor-pointer flex-grow md:flex-grow-0 border border-white/10">
+
+                        <option value="recent">🕐 Recent First</option>
+
+                        <option value="match">✨ Best Match</option>
+
+                        <option value="distance">📍 Nearest</option>
+
+                    </select>
+
+                    <button onclick="window.fetchData()" class="p-4 glass-panel rounded-2xl hover:bg-white/10 text-electric-400 transition border border-white/10 group"><i class="fa-solid fa-rotate group-hover:rotate-180 transition-transform duration-500"></i></button>
+
+                </div>
+
+            </div>
+
+            
+
+            <div id="feedSkeleton" class="hidden-ui columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+
+                <div class="skeleton h-64 break-inside-avoid"></div><div class="skeleton h-80 break-inside-avoid"></div><div class="skeleton h-72 break-inside-avoid"></div>
+
+            </div>
+
+            <div id="feedGrid" class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6"></div>
+
+            <div id="loadMoreContainer" class="hidden-ui text-center mt-10">
+
+                <button onclick="window.loadMoreItems()" class="px-8 py-4 glass-panel rounded-2xl text-electric-400 font-bold hover:bg-electric-500/10 transition border border-white/10"><i class="fa-solid fa-arrow-down mr-2"></i>Load More Items</button>
+
+            </div>
+
+        </div>
+
+
+
+        <div id="view-qr" class="hidden-ui text-center max-w-lg mx-auto">
+
+             <div class="glass-panel p-12 rounded-[2.5rem] relative overflow-hidden">
+
+                <div class="absolute -top-20 -left-20 w-40 h-40 bg-neon-500 blur-[100px] opacity-20"></div>
+
+                <h2 class="text-3xl font-display font-bold text-white mb-3">Smart Tags</h2>
+
+                <p class="text-sm text-slate-400 mb-10 leading-relaxed">Generate a recovery code. Stick it on your calculator or ID. If found, scanning it notifies you instantly.</p>
+
+                <div class="space-y-8 text-left">
+
+                    <div>
+
+                        <span class="text-[10px] font-bold text-neon-400 uppercase tracking-widest block mb-3">Step 1: Item Name</span>
+
+                        <input type="text" id="qr_item" placeholder="e.g. Casio FX-991EX" class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    </div>
+
+                    <div>
+
+                        <span class="text-[10px] font-bold text-neon-400 uppercase tracking-widest block mb-3">Step 2: Generate</span>
+
+                        <button onclick="window.createQR()" class="w-full bg-neon-500 hover:bg-neon-400 text-black font-bold py-4 rounded-xl transition shadow-lg shadow-neon-500/20">Create Tag</button>
+
+                    </div>
+
+                    <div id="qr_output" class="hidden-ui text-center bg-white p-6 rounded-2xl shadow-2xl mx-auto border-4 border-neon-500/50 relative">
+
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-4">Step 3: Print & Stick</span>
+
+                        <canvas id="qrcode_canvas" class="mx-auto"></canvas>
+
+                        <p class="text-black font-bold text-[10px] mt-4 uppercase tracking-[0.2em]">Scan to Return</p>
+
+                        <button onclick="window.printQR()" class="mt-6 text-xs bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-3 px-6 rounded-lg w-full flex items-center justify-center gap-2"><i class="fa-solid fa-print"></i> Print Label</button>
+
+                    </div>
+
+                </div>
+
+             </div>
+
+        </div>
+
+
+
+        <div id="view-profile" class="hidden-ui max-w-4xl mx-auto pb-24 md:pb-0">
+
+             <div class="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden mb-8 card-hover">
+
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-electric-500 blur-[100px] opacity-20"></div>
+
+                <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-neon-500 blur-[100px] opacity-20"></div>
+
+                <div class="text-center mb-10 relative z-10">
+
+                    <div class="relative inline-block mb-4">
+
+                        <div class="w-28 h-28 mx-auto rounded-3xl bg-gradient-to-br from-electric-500 to-neon-500 flex items-center justify-center shadow-2xl shadow-electric-500/30 animate-glow">
+
+                            <span id="karmaScore" class="text-4xl font-bold text-white font-display">0</span>
+
+                        </div>
+
+                        <svg class="absolute -inset-2 w-32 h-32" viewBox="0 0 100 100">
+
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+
+                            <circle id="progressRing" cx="50" cy="50" r="45" fill="none" stroke="url(#gradient)" stroke-width="4" stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 50 50)" stroke-linecap="round"/>
+
+                            <defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7c3aed"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs>
+
+                        </svg>
+
+                    </div>
+
+                    <h3 id="karmaBadge" class="text-2xl font-bold text-white mb-2">Newcomer</h3>
+
+                    <p class="text-sm text-slate-400">Level <span id="userLevel">1</span> • <span id="karmaPoints">0</span> Karma Points</p>
+
+                    <div class="mt-4 max-w-xs mx-auto">
+
+                        <div class="flex justify-between text-xs text-slate-500 mb-2"><span>Current Level</span><span id="nextLevelText">Next: 50 points</span></div>
+
+                        <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden"><div id="levelProgress" class="h-full bg-gradient-to-r from-electric-500 to-neon-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+
+                    </div>
+
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-8">
+
+                    <div class="text-center glass-panel p-4 rounded-2xl border border-white/5"><div class="text-2xl font-bold text-emerald-400 font-display" id="profileReturned">0</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Items Returned</div></div>
+
+                    <div class="text-center glass-panel p-4 rounded-2xl border border-white/5"><div class="text-2xl font-bold text-electric-400 font-display" id="profileReported">0</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Reports Filed</div></div>
+
+                    <div class="text-center glass-panel p-4 rounded-2xl border border-white/5"><div class="text-2xl font-bold text-neon-400 font-display" id="profileStreak">0</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Day Streak</div></div>
+
+                </div>
+
+                <div class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-400"></i> Achievements</h3>
+
+                        <span class="text-xs text-slate-500"><span id="achievementCount">0</span>/8 Unlocked</span>
+
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-3">
+
+                        <div class="achievement-item locked text-center p-4 glass-panel rounded-2xl border border-white/5 cursor-pointer hover:scale-105 transition" title="First Report"><i class="fa-solid fa-flag text-3xl text-slate-700 mb-2"></i><p class="text-[9px] text-slate-600 uppercase tracking-wider font-bold">First Step</p></div>
+
+                        <div class="achievement-item locked text-center p-4 glass-panel rounded-2xl border border-white/5 cursor-pointer hover:scale-105 transition" title="Helper: Return 5 items"><i class="fa-solid fa-hand-holding-heart text-3xl text-slate-700 mb-2"></i><p class="text-[9px] text-slate-600 uppercase tracking-wider font-bold">Helper</p></div>
+
+                        <div class="achievement-item locked text-center p-4 glass-panel rounded-2xl border border-white/5 cursor-pointer hover:scale-105 transition" title="Scout: Return 10 items"><i class="fa-solid fa-eye text-3xl text-slate-700 mb-2"></i><p class="text-[9px] text-slate-600 uppercase tracking-wider font-bold">Scout</p></div>
+
+                        <div class="achievement-item locked text-center p-4 glass-panel rounded-2xl border border-white/5 cursor-pointer hover:scale-105 transition" title="Hero: Return 25 items"><i class="fa-solid fa-shield-halved text-3xl text-slate-700 mb-2"></i><p class="text-[9px] text-slate-600 uppercase tracking-wider font-bold">Hero</p></div>
+
+                    </div>
+
+                </div>
+
+                <h2 class="text-xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-2"><i class="fa-solid fa-gear text-electric-400"></i> Settings</h2>
+
+                <form onsubmit="window.updateProfile(event)" class="space-y-6">
+
+                    <div>
+
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2 block">Display Name</label>
+
+                        <input type="text" id="profile_name" placeholder="Enter new username" required class="w-full p-4 glass-input rounded-xl text-sm">
+
+                    </div>
+
+                    <button type="submit" id="saveProfileBtn" class="w-full btn-primary py-4 rounded-xl font-bold text-white shadow-lg flex justify-center items-center gap-2 group"><span>Save Changes</span> <i class="fa-solid fa-check group-hover:scale-110 transition-transform"></i></button>
+
+                </form>
+
+             </div>
+
+        </div>
+
+        <div id="view-support" class="hidden-ui max-w-5xl mx-auto pb-24 md:pb-0 space-y-8">
+    
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-display font-bold text-white mb-2">Help & Support</h2>
+        <p class="text-slate-400 text-sm">Need assistance? Reach out to the Student Gymkhana.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="glass-panel p-8 rounded-[2rem] border border-emerald-500/20 card-hover text-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition"></div>
+            <div class="w-16 h-16 mx-auto mb-6 bg-emerald-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <i class="fa-solid fa-phone-volume text-3xl text-emerald-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-1">Helpline</h3>
+            <p class="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-6">24/7 Emergency</p>
+            <a href="tel:+911234567890" class="text-2xl font-display font-bold text-white hover:text-emerald-400 transition">
+                +91 6387357347
+            </a>
+            <p class="text-xs text-slate-500 mt-2">Tap to Call</p>
+        </div>
+
+        <div class="glass-panel p-8 rounded-[2rem] border border-electric-500/20 card-hover text-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-electric-500/5 group-hover:bg-electric-500/10 transition"></div>
+            <div class="w-16 h-16 mx-auto mb-6 bg-electric-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <i class="fa-solid fa-envelope text-3xl text-electric-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-1">Email Us</h3>
+            <p class="text-xs text-electric-400 font-bold uppercase tracking-widest mb-6">Official Support</p>
+            <a href="mailto:helpdesk@lnmiit.ac.in" class="text-lg font-bold text-white hover:text-electric-400 transition">
+                gym.vicepresident@lnmiit.ac.in
+            </a>
+            <p class="text-xs text-slate-500 mt-2">Response within 24hrs</p>
+        </div>
+
+        <div class="glass-panel p-8 rounded-[2rem] border border-gold-500/20 card-hover text-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gold-500/5 group-hover:bg-gold-500/10 transition"></div>
+            <div class="w-16 h-16 mx-auto mb-6 bg-gold-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <i class="fa-solid fa-user-tie text-3xl text-gold-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-1">President</h3>
+            <p class="text-xs text-gold-400 font-bold uppercase tracking-widest mb-6">Student Gymkhana</p>
+            <div class="text-lg font-bold text-white">
+                Priyanshu Kumar
+            </div>
+            <p class="text-xs text-slate-500 mt-2">president.gymkhana@lnmiit.ac.in</p>
+        </div>
+    </div>
+
+    <div class="glass-panel p-8 rounded-3xl border border-white/5">
+        <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-neon-400"></i> Quick Note
+        </h4>
+        <p class="text-sm text-slate-400 leading-relaxed">
+            Please allow up to 24 hours for lost items to be approved by the admin team. If you have found a high-value item (Laptop, Phone), please deposit it directly at the Security Office in the Main Building.
+        </p>
+    </div>
+</div>
+
+        <div id="view-admin" class="hidden-ui space-y-8 pb-24 md:pb-0">
+
+            <div class="glass-panel p-8 rounded-[2rem] card-hover">
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+
+                    <div>
+
+                        <h2 class="text-3xl font-bold text-white flex items-center gap-3 mb-2"><i class="fa-solid fa-shield-halved text-red-400"></i> Admin Console</h2>
+
+                        <p class="text-sm text-slate-400">Real-time analytics and system management</p>
+
+                    </div>
+
+                    <div class="flex gap-3">
+
+                        <span class="text-xs bg-red-500/10 text-red-400 px-4 py-2 rounded-full border border-red-500/20 font-bold tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span> AUTHORIZED</span>
+
+                        <button onclick="window.refreshAnalytics()" class="px-4 py-2 glass-panel rounded-full hover:bg-white/10 text-electric-400 transition"><i class="fa-solid fa-rotate"></i></button>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+                    <div class="bg-gradient-to-br from-electric-500/10 to-neon-500/10 p-5 rounded-2xl border border-electric-500/20">
+
+                        <div class="flex items-center justify-between mb-2"><i class="fa-solid fa-database text-electric-400 text-2xl"></i><span class="text-xs text-electric-400 font-bold">TOTAL</span></div>
+
+                        <div class="text-3xl font-bold text-white font-display" id="adminTotalItems">0</div>
+
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-500/10 to-green-500/10 p-5 rounded-2xl border border-emerald-500/20">
+
+                        <div class="flex items-center justify-between mb-2"><i class="fa-solid fa-check-double text-emerald-400 text-2xl"></i><span class="text-xs text-emerald-400 font-bold">RESOLVED</span></div>
+
+                        <div class="text-3xl font-bold text-white font-display" id="adminResolved">0</div>
+
+                    </div>
+
+                    <div class="bg-gradient-to-br from-red-500/10 to-orange-500/10 p-5 rounded-2xl border border-red-500/20">
+
+                        <div class="flex items-center justify-between mb-2"><i class="fa-solid fa-clock text-red-400 text-2xl"></i><span class="text-xs text-red-400 font-bold">PENDING</span></div>
+
+                        <div class="text-3xl font-bold text-white font-display" id="adminPending">0</div>
+
+                    </div>
+
+                    <div class="bg-gradient-to-br from-gold-500/10 to-yellow-500/10 p-5 rounded-2xl border border-gold-500/20">
+
+                        <div class="flex items-center justify-between mb-2"><i class="fa-solid fa-users text-gold-400 text-2xl"></i><span class="text-xs text-gold-400 font-bold">USERS</span></div>
+
+                        <div class="text-3xl font-bold text-white font-display" id="adminUsers">0</div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-fire text-red-400"></i> Loss Hotspot Heatmap</h3>
+
+                        <button onclick="window.toggleHeatmap()" class="text-xs bg-red-500/10 text-red-400 px-3 py-1 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition font-bold"><i class="fa-solid fa-layer-group mr-1"></i>Toggle Heatmap</button>
+
+                    </div>
+
+                    <div class="relative w-full h-96 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
+
+                        <div id="adminMap" class="w-full h-full z-10"></div>
+
+                        <div class="absolute top-4 right-4 bg-midnight/90 backdrop-blur px-4 py-2 rounded-xl text-xs text-white z-20 border border-white/10 font-mono flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE TRACKING</div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <div class="bg-white/5 p-8 rounded-2xl flex flex-col items-center justify-center border border-white/5 card-hover">
+
+                        <h3 class="text-xs font-bold text-slate-400 mb-6 uppercase tracking-widest self-start">Item Distribution</h3>
+
+                        <div class="w-full h-64 relative"><canvas id="statsChart"></canvas></div>
+
+                        <div class="mt-6 flex gap-4 w-full justify-center">
+
+                            <button onclick="window.downloadCSV()" class="flex-1 text-xs font-bold text-slate-300 hover:text-white flex items-center justify-center gap-2 bg-white/5 px-6 py-3 rounded-xl transition hover:bg-white/10 border border-white/5"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bg-white/5 p-8 rounded-2xl border border-white/5 card-hover">
+
+                        <h3 class="font-bold text-electric-400 mb-3 text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</h3>
+
+                        <p class="text-xs text-slate-500 mb-6">Push a notification to all active sessions</p>
+
+                        <div class="space-y-4">
+
+                            <div>
+
+                                <label class="text-xs text-slate-400 mb-2 block">Message Type</label>
+
+                                <select id="bc_type" class="w-full p-3 glass-input rounded-xl text-sm"><option value="info">ℹ️ Information</option><option value="warning">⚠️ Warning</option><option value="success">✅ Success</option><option value="error">❌ Critical</option></select>
+
+                            </div>
+
+                            <div>
+
+                                <label class="text-xs text-slate-400 mb-2 block">Message Content</label>
+
+                                <textarea id="bc_msg" placeholder="Type your announcement..." class="w-full mb-4 p-4 glass-input rounded-xl text-sm resize-none" rows="3"></textarea>
+
+                            </div>
+
+                            <button onclick="window.sendBroadcast()" class="w-full bg-electric-600 hover:bg-electric-500 text-white font-bold py-4 rounded-xl text-sm transition shadow-lg shadow-electric-500/20 flex items-center justify-center gap-2 group"><i class="fa-solid fa-paper-plane group-hover:translate-x-1 transition-transform"></i> <span>Send Broadcast</span></button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </main>
+
+
+
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 flex flex-col gap-3 z-50 pointer-events-none"></div>
+
+
+
+    <script type="module">
+        // ==========================================
+// 🌌 GOOGLE GEMINI AI NAVIGATOR
+// ==========================================
+
+// ⚠️ REPLACE THIS WITH YOUR GOOGLE AI STUDIO KEY
+const GEMINI_API_KEY = "AIzaSyBkebo0gWthQNXm50QnUxjr02W9dE1URsA"; 
+
+window.toggleAI = () => {
+    const chat = document.getElementById('aiChatWindow');
+    chat.classList.toggle('hidden-ui');
+    if (!chat.classList.contains('hidden-ui')) {
+        document.getElementById('aiInput').focus();
+    }
+};
+
+window.handleAIMessage = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('aiInput');
+    const message = input.value.trim();
+    if (!message) return;
+    window.lastUserQuery = message;
+    // 1. Show User Message
+    addMessageToUI(message, 'user');
+    input.value = '';
+
+    // 2. Show Typing Indicator
+    const typingId = showTypingIndicator();
+
+    try {
+        // 3. Call Gemini API
+        const aiResponse = await fetchGroq(message);
+        
+        // 4. Remove Typing & Process Response
+        document.getElementById(typingId).remove();
+        processAICommand(aiResponse);
+
+    } catch (error) {
+        document.getElementById(typingId).remove();
+        addMessageToUI("⚠️ Connection failed. Check Console/API Key.", 'ai');
+        console.error(error);
+    }
+};
+
+function addMessageToUI(text, sender) {
+    const container = document.getElementById('aiMessages');
+    const div = document.createElement('div');
+    if (sender === 'user') {
+        div.className = 'msg-user animate-scale-in';
+        div.innerText = text;
+    } else {
+        div.className = 'flex gap-3 animate-fade-up';
+        // Clean up text
+        const cleanText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        div.innerHTML = `
+            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-sparkles text-[10px] text-blue-400"></i></div>
+            <div class="msg-ai">${cleanText}</div>
+        `;
+    }
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const id = 'typing-' + Date.now();
+    const container = document.getElementById('aiMessages');
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'flex gap-3 animate-fade-up';
+    div.innerHTML = `<div class="w-6 h-6 rounded-full bg-blue-500/20 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-sparkles text-[10px] text-blue-400"></i></div><div class="msg-ai flex items-center gap-1 h-8"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+// 🧠 THE BRAIN: Gemini Request (Fixed Model Name)
+// 🟢 GROQ API IMPLEMENTATION (Llama 3)
+const GROQ_API_KEY = "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"; // PASTE YOUR GROQ KEY HERE
+// 🗺️ LNMIIT CAMPUS LOCATION DATABASE
+// 🗺️ LNMIIT CAMPUS LOCATION DATABASE (Updated with Precision Coordinates)
+const LOCATIONS_DB = [
+    // --- HOSTEL ZONE ---
+    { name: 'BH-1 (Boys Hostel)', lat: 26.933853, lng: 75.922711, keywords: ['bh1', 'bh-1', 'hostel 1', 'boys hostel 1'] },
+    { name: 'BH-2 (Boys Hostel)', lat: 26.933893070247258, lng: 75.92374077639367, keywords: ['bh2', 'bh-2', 'hostel 2', 'boys hostel 2'] },
+    { name: 'BH-3 (Boys Hostel)', lat: 26.934601573868655, lng: 75.92487139545179, keywords: ['bh3', 'bh-3', 'hostel 3', 'boys hostel 3'] },
+    { name: 'BH-4 (Boys Hostel)', lat: 26.931358060136407, lng: 75.92309885254814, keywords: ['bh4', 'bh-4', 'hostel 4', 'boys hostel 4'] },
+    { name: 'BH-5 (Boys Hostel)', lat: 26.9358606330748, lng: 75.92636468919346, keywords: ['bh5', 'bh-5', 'hostel 5', 'boys hostel 5'] },
+    { name: 'GH (Girls Hostel)', lat: 26.93528221735585, lng: 75.92261343005961, keywords: ['gh', 'girls hostel', 'female hostel', 'shivalik'] },
+    
+    // --- RESIDENTIAL ---
+    { name: 'Studio Apartments', lat: 26.93214692358109, lng: 75.92247089157877, keywords: ['studio', 'apartment', 'faculty housing'] },
+    { name: 'Guest House', lat: 26.934710592797227, lng: 75.92178213168063, keywords: ['guest house', 'guest', 'visitor'] },
+    { name: 'Director Residence', lat: 26.935185371984723, lng: 75.92191105822403, keywords: ['director', 'directors house', 'bungalow'] },
+
+    // --- ACADEMIC ---
+    { name: 'Academic Block', lat: 26.93526442248563, lng: 75.92393358661471, keywords: ['acad block', 'academic', 'main building', 'reception', 'admin'] },
+    { name: 'Library', lat: 26.93593015818839, lng: 75.92320500532236, keywords: ['library', 'lib', 'reading room', 'central library'] },
+    { name: 'MME Building', lat: 26.936259426023284, lng: 75.92498508489265, keywords: ['mme', 'mechanical', 'me department', 'workshop'] },
+    { name: 'LICAI Building', lat: 26.932337076067704, lng: 75.92042082546308, keywords: ['licai', 'lab block', 'computer lab'] },
+    { name: 'Incubation Centre', lat: 26.936023471816842, lng: 75.92544131454778, keywords: ['incubation', 'startup', 'innovation', 'center'] },
+    { name: 'Lecture Hall Complex', lat: 26.935529935836264, lng: 75.92392424619986, keywords: ['lt', 'lt1', 'lt2', 'lecture hall', 'classroom', 'complex'] },
+
+    // --- DINING (Mess) ---
+    { name: 'Mess A', lat: 26.934731990633356, lng: 75.92290480017273, keywords: ['mess a', 'mess-a', 'dining hall a', 'annapurna'] },
+    { name: 'Mess B', lat: 26.935075706572174, lng: 75.92523717698083, keywords: ['mess b', 'mess-b', 'dining hall b'] },
+    { name: 'Mess C', lat: 26.93145020142579, lng: 75.92319692881698, keywords: ['mess c', 'mess-c', 'dining hall c'] },
+
+    // --- FACILITIES & LANDMARKS ---
+    { name: 'Medical Centre', lat: 26.933223976319503, lng: 75.92337841459249, keywords: ['medical', 'hospital', 'doctor', 'dispensary', 'clinic'] },
+    { name: 'SAC (Student Activity Centre)', lat: 26.933004713247833, lng: 75.9232054095363, keywords: ['sac', 'gym', 'badminton', 'indoor'] },
+    { name: 'Water Treatment Plant', lat: 26.934212923101693, lng: 75.924318069577, keywords: ['wtp', 'water plant', 'tank'] },
+    { name: 'Diamond Jubilee Park', lat: 26.934733573691496, lng: 75.92317263824044, keywords: ['diamond', 'park', 'garden', 'roundabout'] },
+    { name: 'OAT (Open Air Theatre)', lat: 26.93466449065951, lng: 75.92376104784279, keywords: ['oat', 'amphitheatre', 'open air', 'stage'] },
+    { name: 'Central Plaza (CP)', lat: 26.936190066276758, lng: 75.92321642498722, keywords: ['cp', 'central plaza', 'gathering', 'amul', 'shop'] },
+    { name: 'Hilltop', lat: 26.937299955354316, lng: 75.92289416066335, keywords: ['hilltop', 'hill', 'view point'] },
+    { name: 'Main Gate', lat: 26.93771124662213, lng: 75.92281274652025, keywords: ['gate', 'main gate', 'security', 'entrance'] },
+
+    // --- SPORTS GROUNDS ---
+    { name: 'Basketball Court', lat: 26.933063687495242, lng: 75.9226032840956, keywords: ['basketball', 'bb court', 'court'] },
+    { name: 'Volleyball Court', lat: 26.932809644363704, lng: 75.92256088089555, keywords: ['volleyball', 'vb court'] },
+    { name: 'Cricket Ground', lat: 26.930483267148, lng: 75.92006453881974, keywords: ['cricket', 'ground', 'stadium', 'field'] },
+    { name: 'Football Ground', lat: 26.930260974353246, lng: 75.92070906746048, keywords: ['football', 'soccer', 'ground'] }
+];
+
+// ⚡ Fast Generator: Converts the list above into the format your code needs
+const CAMPUS_LOCATIONS = {};
+LOCATIONS_DB.forEach(loc => {
+    loc.keywords.forEach(key => {
+        CAMPUS_LOCATIONS[key] = { lat: loc.lat, lng: loc.lng, name: loc.name };
+    });
+});
+// ⚡ Fast Generator: Converts the list above into the format your code needs
+// 🔍 DETECT LOCATION FROM TEXT
+function detectLocation(text) {
+    const lowerText = text.toLowerCase();
+    
+    // Check for exact matches first
+    for (let [keyword, location] of Object.entries(CAMPUS_LOCATIONS)) {
+        if (lowerText.includes(keyword)) {
+            return location;
+        }
+    }
+    
+    // Check for common phrases
+    const locationPatterns = [
+        /(?:near|at|in|by|outside|inside)\s+(?:the\s+)?(\w+(?:\s+\w+)?)/gi
+    ];
+    
+    for (let pattern of locationPatterns) {
+        const matches = lowerText.matchAll(pattern);
+        for (let match of matches) {
+            const place = match[1].toLowerCase();
+            if (CAMPUS_LOCATIONS[place]) {
+                return CAMPUS_LOCATIONS[place];
+            }
+        }
+    }
+    
+    return null;
+}
+
+async function fetchGroq(userQuery) {
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+    
+   const systemPrompt = `
+You are the Navigator AI for LNMIIT Lost & Found Portal.
+Analyze the user's intent and return ONLY a JSON object.
+
+INTENT DETECTION:
+- If user says they LOST something → navigate to "report" (Lost form)
+- If user says they FOUND something → navigate to "report" (Found form)
+- If user asks to see items/feed/list → navigate to "feed"
+- If user asks about QR codes/tags → navigate to "qr"
+- If user asks about profile/stats/karma → navigate to "profile"
+- If user asks about admin/analytics → navigate to "admin"
+- For everything else → chat response
+
+KEYWORDS TO DETECT:
+Lost: "lost", "can't find", "missing", "misplaced", "dropped"
+Found: "found", "picked up", "discovered", "someone left"
+Feed: "show", "see", "view", "list", "browse", "feed"
+Location: "near", "at", "in", "by", "outside", "inside" + place name
+
+RESPONSE FORMAT (JSON only):
+{
+  "action": "navigate" or "chat",
+  "target": "report" or "feed" or "qr" or "profile" or "admin",
+  "reply": "helpful message to user",
+  "hasLocation": true or false
+}
+
+EXAMPLES:
+User: "I lost my wallet near library"
+→ {"action": "navigate", "target": "report", "reply": "Opening report form. I detected you lost your wallet near the library!", "hasLocation": true}
+
+User: "I found a phone in the canteen"
+→ {"action": "navigate", "target": "report", "reply": "Great! Opening the form to report the phone you found in the canteen.", "hasLocation": true}
+
+User: "I lost my ID card"
+→ {"action": "navigate", "target": "report", "reply": "Opening the Lost Item report form. I'll help you report your lost ID card!", "hasLocation": false}
+
+User: "show me the feed"
+→ {"action": "navigate", "target": "feed", "reply": "Opening the live feed of lost and found items.", "hasLocation": false}
+`;
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userQuery }
+                ],
+                response_format: { type: "json_object" }
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        return JSON.parse(data.choices[0].message.content);
+
+    } catch (error) {
+        console.error("Groq Error:", error);
+        throw error;
+    }
+}
+
+// 📍 AUTO-PIN LOCATION ON MAP
+function autoPinLocation(location) {
+    if (!mapInstance || !location) return;
+    
+    const { lat, lng, name } = location;
+    
+    // Set map view to location
+    mapInstance.setView([lat, lng], 18);
+    
+    // Remove old marker
+    if (markerInstance) mapInstance.removeLayer(markerInstance);
+    
+    // Add new marker
+    const customMarker = L.divIcon({ 
+        className: 'custom-pin', 
+        html: `<div class="pin-pulse"></div><div class="pin-inner"></div>`, 
+        iconSize: [20, 20], 
+        iconAnchor: [10, 10] 
+    });
+    
+    markerInstance = L.marker([lat, lng], { icon: customMarker }).addTo(mapInstance);
+    
+    // Update hidden form fields
+    document.getElementById('r_lat').value = lat;
+    document.getElementById('r_lng').value = lng;
+    
+    window.updateFormProgress();
+    window.showToast(`📍 Location set: ${name}`, 'success');
+}
+
+// 🎮 THE CONTROLLER: Execute Command
+function processAICommand(response) {
+    addMessageToUI(response.reply, 'ai');
+    
+    if (response.action === "navigate") {
+        setTimeout(() => {
+            window.switchTab(response.target);
+            window.showToast(`AI: Navigating to ${response.target}`, 'info');
+            
+            // ✨ SMART AUTO-FILL + LOCATION DETECTION
+            if(response.target === 'report') {
+                setTimeout(() => {
+                    const query = window.lastUserQuery.toLowerCase();
+                     if(query.includes('found') || query.includes('picked up') || query.includes('discovered')) {
+            document.getElementById('r_type').value = 'Found';
+        }  
+                    // Extract item name
+                    if (window.lastUserQuery) {
+                        const query = window.lastUserQuery.toLowerCase();
+                        
+                        // Extract item name
+                        let itemName = '';
+                        const patterns = [
+    // Pattern 1: "I lost my [Item]..."
+    // Fix: Added (?!at|in|near...) to stop capturing if the next word is a location preposition
+    /(?:lost|missing|can't find|misplaced|dropped)\s+(?:my|a|the|an)\s+(\w+(?:\s+(?!at\b|in\b|near\b|on\b|by\b|from\b|inside\b|outside\b)\w+)?)/i,
+    
+    // Pattern 2: "I found a [Item]..."
+    /(?:found|picked up|discovered)\s+(?:a|an|the)\s+(\w+(?:\s+(?!at\b|in\b|near\b|on\b|by\b|from\b|inside\b|outside\b)\w+)?)/i,
+    
+    // Pattern 3: "My [Item] is lost..."
+    /my\s+(\w+(?:\s+(?!is\b|was\b|at\b|in\b)\w+)?)\s+(?:is|was)\s+(?:lost|missing)/i
+];
+                        
+                        for (let pattern of patterns) {
+                            const match = query.match(pattern);
+                            if (match && match[1]) {
+                                itemName = match[1].trim();
+                                const ignoreWords = ['item', 'thing', 'stuff', 'something'];
+                                if (!ignoreWords.includes(itemName.toLowerCase())) {
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (itemName) {
+                            itemName = itemName.charAt(0).toUpperCase() + itemName.slice(1);
+                                    
+                            document.getElementById('r_item').value = itemName;
+                            window.updateFormProgress();
+                            window.showToast(`Auto-filled: ${itemName}`, 'success');
+                        }
+                        
+                        // 🗺️ DETECT AND PIN LOCATION
+                        if (response.hasLocation) {
+                            const location = detectLocation(window.lastUserQuery);
+                            if (location) {
+                                // Wait for map to be visible
+                                setTimeout(() => {
+                                    autoPinLocation(location);
+                                }, 500);
+                            }
+                        }
+                    }
+                    
+                    document.getElementById('r_item').focus();
+                }, 500);
+            }
+        }, 800);
+    }
+}
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+
+
+        // =========================================================
+
+        // IMPORTANT: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE
+
+        // =========================================================
+
+        const API_URL = "https://script.google.com/macros/s/AKfycbyb_MA1-f31MpiSh_RSg4fEQpFeIM-CfwqttE9Vx8IGZw0l-nsN9GeFdR0MagSKKd0A/exec"; 
+
+        
+
+        const CLOUD_NAME = "dbxpn84zn"; 
+
+        const UPLOAD_PRESET = "ml_preset"; 
+
+        
+
+        const firebaseConfig = {
+
+           apiKey: "AIzaSyCxV_JiHEMykTyLyW2ba9VtOHcsPu61-JU",
+
+           authDomain: "lost-b55d8.firebaseapp.com",
+            databaseURL: "https://lost-b55d8-default-rtdb.firebaseio.com",
+           projectId: "lost-b55d8",
+
+           storageBucket: "lost-b55d8.firebasestorage.app",
+
+           messagingSenderId: "805227872638",
+
+           appId: "1:805227872638:web:eee07259ee3da97b51732f"
+
+        };
+
+
+
+        // ADMIN EMAILS: Used for client-side UI toggles (Server verifies securely)
+
+        const ADMIN_EMAILS = ["25ucs214@lnmiit.ac.in", "riteshmalik21092005@gmail.com", "malikritesh316@gmail.com"]; 
+
+        const CAMPUS_CENTER = [26.9363, 75.9235]; 
+
+        const MAX_RADIUS_KM = 3.0; 
+
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const database = getDatabase(app);
+
+        const broadcastRef = ref(database, 'broadcasts');
+
+        const provider = new GoogleAuthProvider();
+
+
+
+        let currentUser = null;
+
+        let globalData = [];
+
+        let mapInstance = null;
+
+        let markerInstance = null;
+
+        let adminMapInstance = null;
+
+        let chartInstance = null; 
+
+        let isLocationVerified = false;
+
+        let hasEnteredSite = false;
+
+        let displayedItems = 9;
+
+        let currentCategory = 'All';
+
+        
+
+        // Heatmap Variables
+
+        let heatmapLayer = null;
+
+        let heatmapVisible = true;
+
+
+
+        // --- SECURITY: XSS Sanitizer ---
+
+        function escapeHTML(str) {
+
+            if (!str) return "";
+
+            return str.replace(/[&<>'"]/g, 
+
+                tag => ({
+
+                    '&': '&amp;',
+
+                    '<': '&lt;',
+
+                    '>': '&gt;',
+
+                    "'": '&#39;',
+
+                    '"': '&quot;'
+
+                }[tag]));
+
+        }
+
+        // ========== AI VISUAL MATCHING ENGINE ==========
+
+let mobilenetModel = null;
+
+let imageEmbeddings = new Map(); // Store all image embeddings
+
+
+
+// Load AI model on startup
+
+async function loadAIModel() {
+
+    try {
+
+        console.log("Loading MobileNet...");
+
+        mobilenetModel = await mobilenet.load();
+
+        console.log("✓ AI Model Ready");
+
+        window.showToast("AI Vision Loaded", "success");
+
+    } catch (err) {
+
+        console.error("AI Model Load Failed:", err);
+
+    }
+
+}
+
+
+
+// Extract features from image
+
+async function getImageEmbedding(imageElement) {
+
+    if (!mobilenetModel) return null;
+
+    try {
+
+        const embedding = await mobilenetModel.infer(imageElement, true);
+
+        return Array.from(embedding.dataSync());
+
+    } catch (err) {
+
+        console.error("Embedding Error:", err);
+
+        return null;
+
+    }
+
+}
+
+
+
+// Calculate cosine similarity between two embeddings
+
+function cosineSimilarity(vecA, vecB) {
+
+    if (!vecA || !vecB || vecA.length !== vecB.length) return 0;
+
+    let dotProduct = 0, normA = 0, normB = 0;
+
+    for (let i = 0; i < vecA.length; i++) {
+
+        dotProduct += vecA[i] * vecB[i];
+
+        normA += vecA[i] * vecA[i];
+
+        normB += vecB[i] * vecB[i];
+
+    }
+
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+
+}
+
+
+
+// Find visually similar items
+
+async function findVisualMatches(uploadedImageElement, threshold = 0.75) {
+
+    if (!mobilenetModel) return [];
+
+    
+
+    const uploadedEmbedding = await getImageEmbedding(uploadedImageElement);
+
+    if (!uploadedEmbedding) return [];
+
+    
+
+    const matches = [];
+
+    
+
+    for (const [itemId, storedEmbedding] of imageEmbeddings.entries()) {
+
+        const similarity = cosineSimilarity(uploadedEmbedding, storedEmbedding);
+
+        if (similarity > threshold) {
+
+            const item = globalData.find(i => i.rowIndex == itemId);
+
+            if (item) {
+
+                matches.push({ item, similarity: (similarity * 100).toFixed(1) });
+
+            }
+
+        }
+
+    }
+
+    
+
+    return matches.sort((a, b) => b.similarity - a.similarity);
+
+}
+
+
+
+// Process all existing images in database
+
+async function indexExistingImages() {
+
+    if (!mobilenetModel) return;
+
+    
+
+    let indexed = 0;
+
+    for (const item of globalData) {
+
+        if (item.image && !imageEmbeddings.has(item.rowIndex)) {
+
+            try {
+
+                const img = new Image();
+
+                img.crossOrigin = "anonymous";
+
+                img.src = item.image;
+
+                await new Promise((resolve) => { img.onload = resolve; });
+
+                
+
+                const embedding = await getImageEmbedding(img);
+
+                if (embedding) {
+
+                    imageEmbeddings.set(item.rowIndex, embedding);
+
+                    indexed++;
+
+                }
+
+            } catch (err) {
+
+                console.error(`Failed to index ${item.rowIndex}:`, err);
+
+            }
+
+        }
+
+    }
+
+    console.log(`✓ Indexed ${indexed} images`);
+
+}
+
+
+
+
+
+        window.showToast = (message, type = 'success', action = null) => {
+
+            const container = document.getElementById('toast-container');
+
+            const toast = document.createElement('div');
+
+            const configs = {
+
+                success: { icon: 'fa-check-circle', color: 'border-emerald-500 bg-emerald-500/10', textColor: 'text-emerald-400', title: 'Success' },
+
+                error: { icon: 'fa-triangle-exclamation', color: 'border-red-500 bg-red-500/10', textColor: 'text-red-400', title: 'Error' },
+
+                info: { icon: 'fa-info-circle', color: 'border-neon-500 bg-neon-500/10', textColor: 'text-neon-400', title: 'Info' },
+
+                warning: { icon: 'fa-exclamation-triangle', color: 'border-gold-500 bg-gold-500/10', textColor: 'text-gold-400', title: 'Warning' }
+
+            };
+
+            const config = configs[type] || configs.success;
+
+            toast.className = `pointer-events-auto flex items-center gap-4 w-96 max-w-full p-5 rounded-2xl glass-panel border-l-4 ${config.color} shadow-2xl backdrop-blur-xl mb-3 animate-slide-up`;
+
+            let actionHtml = action ? `<button onclick="${action.onClick}" class="px-4 py-2 ${config.textColor} hover:bg-white/10 rounded-lg text-xs font-bold transition">${action.label}</button>` : '';
+
+            toast.innerHTML = `<div class="w-10 h-10 rounded-full ${config.color} flex items-center justify-center flex-shrink-0"><i class="fa-solid ${config.icon} text-xl ${config.textColor}"></i></div><div class="flex-1 min-w-0"><h5 class="font-bold text-white text-sm mb-1">${config.title}</h5><p class="text-slate-300 text-xs leading-relaxed">${message}</p></div>${actionHtml}<button onclick="this.parentElement.remove()" class="w-8 h-8 hover:bg-white/10 rounded-lg flex items-center justify-center text-slate-500 hover:text-white transition flex-shrink-0"><i class="fa-solid fa-times"></i></button>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(400px)'; setTimeout(() => toast.remove(), 300); }, 5000);
+
+        }
+
+
+
+        window.enterSite = () => {
+
+            hasEnteredSite = true;
+
+            document.getElementById('landingScreen').classList.add('hidden-ui');
+
+            if (currentUser) showAppScreen(); else showAuthScreen();
+
+        };
+
+
+
+        function showAppScreen() {
+
+            document.getElementById('authScreen').classList.add('hidden-ui');
+
+            document.getElementById('appScreen').classList.remove('hidden-ui');
+
+            document.getElementById('userControls').classList.remove('hidden-ui');
+
+            setTimeout(() => { if(mapInstance) mapInstance.invalidateSize(); }, 500);
+
+        }
+
+
+
+        function showAuthScreen() {
+
+            document.getElementById('appScreen').classList.add('hidden-ui');
+
+            document.getElementById('authScreen').classList.remove('hidden-ui');
+
+            document.getElementById('userControls').classList.add('hidden-ui');
+
+            window.toggleAuthMode('login');
+
+        }
+
+
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (user) {
+                // 🔒 GLOBAL GUARD: Kick out non-LNMIIT users immediately
+        if (user.email && !user.email.toLowerCase().endsWith("@lnmiit.ac.in")) {
+            await signOut(auth);
+            window.showToast("Restricted Access: @lnmiit.ac.in required", "error");
+            return;
+        }
+
+                currentUser = user;
+
+                const customName = localStorage.getItem('customUserName');
+
+                const displayName = customName || user.displayName || "Student";
+
+                document.getElementById('userNameDisplay').innerText = displayName;
+
+                document.getElementById('userEmailDisplay').innerText = user.email;
+
+                document.getElementById('profile_name').value = displayName;
+
+
+
+                fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "REGISTER_USER", email: user.email, uid: user.uid }) }).catch(e=>{});
+
+                
+
+                if (ADMIN_EMAILS.includes(user.email)) { document.getElementById('tab-admin').classList.remove('hidden-ui'); }
+
+                
+
+                // Broadcast Listener
+
+                const lastBroadcastTime = Date.now();
+
+                onChildAdded(broadcastRef, (snapshot) => {
+
+                    const broadcast = snapshot.val();
+
+                    if (broadcast.timestamp > lastBroadcastTime && broadcast.sender !== user.uid) {
+
+                        const typeMap = { info: 'info', warning: 'warning', success: 'success', error: 'error' };
+
+                        window.showToast(broadcast.message, typeMap[broadcast.type] || 'info');
+
+                    }
+
+                });
+
+                
+
+                // GEOFENCING: Soft-Block (Warning Only)
+
+                window.showToast("Verifying Campus Location...", "info");
+
+                isLocationVerified = await checkCampusLocation();
+
+
+
+                if (!isLocationVerified) {
+
+                    window.showToast("📍 Off-Campus Mode: You can browse, but reporting is disabled.", "warning");
+
+                    // Disable reporting button visually
+
+                    document.getElementById('tab-report').classList.add('opacity-50', 'pointer-events-none');
+
+                    document.getElementById('tab-report-mobile').classList.add('opacity-50', 'pointer-events-none');
+
+                } else {    
+
+                    window.showToast("Location Verified ✓", "success");
+
+                    document.getElementById('tab-report').classList.remove('opacity-50', 'pointer-events-none');
+
+                    document.getElementById('tab-report-mobile').classList.remove('opacity-50', 'pointer-events-none');
+
+                }
+
+                
+
+                window.fetchData();
+
+                setTimeout(initMap, 1000);
+
+                if(hasEnteredSite) showAppScreen();
+
+            } else {
+
+                currentUser = null;
+
+                isLocationVerified = false;
+
+                document.getElementById('loginForm').reset();
+
+                document.getElementById('signupForm').reset();
+
+                if(hasEnteredSite) showAuthScreen();
+
+            }
+
+        });
+
+
+
+        // --- UTILS & MAP ---
+
+        function deg2rad(deg) { return deg * (Math.PI/180); }
+
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+
+            var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); 
+
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c;
+
+        }
+
+
+
+        // --- FEATURE: AI Similarity Matching ---
+
+        function calculateSimilarity(str1, str2) {
+
+            if(!str1 || !str2) return 0;
+
+            const set1 = new Set(str1.toLowerCase().split(/\W+/));
+
+            const set2 = new Set(str2.toLowerCase().split(/\W+/));
+
+            const intersection = new Set([...set1].filter(x => set2.has(x)));
+
+            const union = new Set([...set1, ...set2]);
+
+            return intersection.size / union.size;
+
+        }
+
+
+
+        function checkMatches() {
+
+            if(globalData.length < 2) return;
+
+            const myItems = globalData.filter(i => i.email === currentUser.email && i.status !== 'Resolved');
+
+            const otherItems = globalData.filter(i => i.email !== currentUser.email && i.status !== 'Resolved');
+
+            
+
+            myItems.forEach(mine => {
+
+                otherItems.forEach(other => {
+
+                    if(mine.type !== other.type) {
+
+                        const score = calculateSimilarity(mine.item + " " + mine.desc, other.item + " " + other.desc);
+
+                        if(score > 0.3) { 
+
+                            window.showToast(`AI Match: "${other.item}" might be yours!`, "info");
+
+                        }
+
+                    }
+
+                });
+
+            });
+
+        }
+
+
+
+        const checkCampusLocation = () => {
+
+            return new Promise((resolve) => {
+
+                if (!navigator.geolocation) { alert("❌ Your browser doesn't support location services."); resolve(false); return; }
+
+                
+
+                navigator.geolocation.getCurrentPosition(
+
+                    (position) => {
+
+                        const userLat = position.coords.latitude;
+
+                        const userLng = position.coords.longitude;
+
+                        const dist = getDistanceFromLatLonInKm(userLat, userLng, CAMPUS_CENTER[0], CAMPUS_CENTER[1]);
+
+                        if (dist <= MAX_RADIUS_KM) { 
+
+                            resolve(true); 
+
+                        } else { 
+
+                            resolve(false); 
+
+                        }
+
+                    },
+
+                    (err) => { resolve(false); },
+
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+
+                );
+
+            });
+
+        };
+
+        
+
+        window.toggleAuthMode = (mode) => {
+
+            const login = document.getElementById('loginForm');
+
+            const signup = document.getElementById('signupForm');
+
+            const forgot = document.getElementById('forgotForm');
+
+            login.classList.add('hidden-ui'); signup.classList.add('hidden-ui'); forgot.classList.add('hidden-ui');
+
+            if(mode === 'login') login.classList.remove('hidden-ui');
+
+            if(mode === 'signup') signup.classList.remove('hidden-ui');
+
+            if(mode === 'forgot') forgot.classList.remove('hidden-ui');
+
+        };
+
+
+
+        window.handleGoogleLogin = async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // 🔒 SECURITY CHECK: Enforce Domain
+        if (!user.email.endsWith("@lnmiit.ac.in")) {
+            await signOut(auth); // Immediately log them out
+            throw new Error("Access Denied: Please use your official @lnmiit.ac.in email.");
+        }
+
+        if (!hasEnteredSite) window.enterSite();
+    } catch (e) {
+        window.showToast(e.message, "error");
+    }
+};
+
+window.handleUsernameLogin = async (e) => {
+    e.preventDefault();
+
+    let input = document.getElementById('login_input').value.trim();
+    const pass = document.getElementById('login_pass').value;
+    const btn = document.getElementById('loginBtn');
+    const originalText = btn.innerHTML;
+
+    // UI Loading State
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...`;
+    btn.disabled = true;
+
+    try {
+        let loginEmail = input;
+
+        // 1. Check if input is ALREADY an email
+        if (input.includes('@')) {
+            loginEmail = input; 
+            
+            // Domain Guard (Optional but recommended)
+            if(!loginEmail.toLowerCase().endsWith('@lnmiit.ac.in')) {
+                throw new Error("Only @lnmiit.ac.in emails are allowed.");
+            }
+        } 
+        // 2. Logic for Username/Roll No Resolution
+        else {
+            // If input looks like a Roll No (e.g., 25ucs214), auto-append domain
+            // Regex checks for: 2 digits + 3 letters + 3 digits (Standard LNMIIT format)
+            const rollNoRegex = /^\d{2}[a-z]{3}\d{3}$/i;
+            
+            if (rollNoRegex.test(input)) {
+                loginEmail = input.toLowerCase() + '@lnmiit.ac.in';
+            } else {
+                // Only call API if it's not a standard Roll No
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Finding User...`;
+                
+                try {
+                    const res = await fetch(API_URL, { 
+                        method: 'POST', 
+                        redirect: "follow", 
+                        body: JSON.stringify({ action: "GET_EMAIL_BY_USERNAME", username: input }) 
+                    });
+                    const json = await res.json();
+                    
+                    if (json.result === "success" && json.email) { 
+                        loginEmail = json.email; 
+                    } else { 
+                        throw new Error("Username/Roll No not found. Try using your full Email."); 
+                    }
+                } catch (apiError) {
+                    console.error("API Lookup Failed", apiError);
+                    // Fallback: If API fails, assume it might be a username part of an email
+                    throw new Error("Could not resolve username. Please login with your full Email address.");
+                }
+            }
+        }
+
+        // 3. Attempt Firebase Auth
+        console.log("Attempting login with:", loginEmail); // Debugging
+        await signInWithEmailAndPassword(auth, loginEmail, pass);
+        
+        // Success is handled by onAuthStateChanged, but we can force entry visually
+        if(!hasEnteredSite) window.enterSite();
+
+    } catch (error) {
+        console.error("Login Error:", error);
+        
+        let msg = "Invalid Credentials";
+        if (error.code === 'auth/user-not-found') msg = "User not found. Please Sign Up first.";
+        if (error.code === 'auth/wrong-password') msg = "Incorrect Password.";
+        if (error.code === 'auth/too-many-requests') msg = "Too many attempts. Try again later.";
+        if (error.message) msg = error.message;
+
+        window.showToast(msg, "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+        window.handleEmailSignup = async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('signup_name').value;
+    // Force lowercase email to ensure consistency
+    const email = document.getElementById('signup_email').value.toLowerCase().trim();
+    const pass = document.getElementById('signup_pass').value;
+    const btn = document.getElementById('signupBtn');
+    const originalText = btn.innerHTML;
+
+    // 🔒 SECURITY CHECK
+    if (!email.endsWith("@lnmiit.ac.in")) {
+        window.showToast("Registration restricted to @lnmiit.ac.in emails only.", "error");
+        return;
+    }
+
+    if (pass.length < 6) {
+        window.showToast("Password must be at least 6 characters.", "error");
+        return;
+    }
+
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Creating...`;
+    btn.disabled = true;
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // Update Display Name immediately
+        await updateProfile(userCredential.user, { displayName: name });
+        localStorage.setItem('customUserName', name);
+
+        // Sync with your Google Sheet Database
+        // Note: This does not await, so it runs in background
+        fetch(API_URL, {
+            method: 'POST',
+            redirect: "follow",
+            body: JSON.stringify({
+                action: "UPDATE_USERNAME",
+                email: email,
+                uid: userCredential.user.uid,
+                newName: name
+            })
+        });
+
+        window.showToast("Account Created! Logging in...", "success");
+        if (!hasEnteredSite) window.enterSite();
+
+    } catch (error) {
+        let msg = error.message;
+        if (error.code === 'auth/email-already-in-use') msg = "Email already registered. Please Login.";
+        if (error.code === 'auth/weak-password') msg = "Password is too weak.";
+        
+        window.showToast(msg, "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+        window.handleForgotPassword = async (e) => {
+
+            e.preventDefault();
+
+            const email = document.getElementById('forgot_email').value;
+
+            const btn = document.getElementById('forgotBtn');
+
+            btn.innerHTML = `Sending...`; btn.disabled = true;
+
+            try { await sendPasswordResetEmail(auth, email); window.showToast("Reset link sent!", "success"); window.toggleAuthMode('login'); } catch (error) { window.showToast(error.message, "error"); } finally { btn.innerHTML = "Send Reset Link"; btn.disabled = false; }
+
+        };
+
+
+
+        window.logout = () => { signOut(auth); location.reload(); };
+
+
+
+        window.fetchData = async () => {
+
+            try {
+
+                const btn = document.querySelector('.fa-rotate')?.parentElement;
+
+                if(btn) btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
+
+                const res = await fetch(API_URL + "?t=" + new Date().getTime());
+
+                const json = await res.json();
+
+                let data = [];
+
+                if(json.status === "success") data = json.data; else if(Array.isArray(json)) data = json;
+
+                globalData = data;
+
+                window.renderFeed();
+
+                checkMatches(); 
+
+                window.calculateUserKarma(); 
+
+                if(ADMIN_EMAILS.includes(currentUser?.email)) initAdminMap();
+
+                if(btn) btn.innerHTML = `<i class="fa-solid fa-rotate"></i>`;
+
+                window.updateAdminStats();
+
+            } catch(e) { 
+
+                console.error("Fetch Error:", e);
+
+                if(globalData.length === 0) { globalData = []; window.renderFeed(); }
+
+            }
+
+        };
+
+
+
+        window.resolveItem = async (rowIndex) => {
+
+            if(!confirm("Mark this item as RESOLVED? This will hide it from the public feed.")) return;
+
+            const btns = document.querySelectorAll(`button[onclick="window.resolveItem(${rowIndex})"]`);
+
+            let originalText = "RESOLVE";
+
+            if(btns.length > 0) { originalText = btns[0].innerText; btns[0].innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`; btns[0].disabled = true; }
+
+            try {
+
+                const itemIndex = globalData.findIndex(i => i.rowIndex == rowIndex);
+
+                if(itemIndex > -1) globalData[itemIndex].status = 'Resolved';
+
+                window.renderFeed();
+
+                // Send current user email as admin
+
+                const payload = { action: "RESOLVE", rowIndex: rowIndex, admin: currentUser.email };
+
+                const res = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
+
+                const json = await res.json();
+
+                if(json.result !== "success") throw new Error(json.message || "Server Error");
+
+                window.showToast("Item Resolved & Hidden", "success");
+
+                window.calculateUserKarma();
+
+            } catch (err) { console.error(err); window.showToast("Failed: " + err.message, "error"); window.fetchData(); }
+
+        };
+
+
+
+        window.updateAdminStats = () => {
+
+            if (!globalData) return;
+
+            const total = globalData.length;
+
+            const resolved = globalData.filter(i => i.status === 'Resolved').length;
+
+            const pending = total - resolved;
+
+            const users = [...new Set(globalData.map(i => i.email))].length;
+
+            document.getElementById('adminTotalItems').innerText = total;
+
+            document.getElementById('adminResolved').innerText = resolved;
+
+            document.getElementById('adminPending').innerText = pending;
+
+            document.getElementById('adminUsers').innerText = users;
+
+        };
+
+
+
+        window.animateStats = () => {
+
+            const targets = { stat1: 247, stat2: 94.2, stat3: 154 };
+
+            let current = { stat1: 0, stat2: 0, stat3: 0 };
+
+            const duration = 2000;
+
+            const steps = 60;
+
+            const interval = duration / steps;
+
+            const timer = setInterval(() => {
+
+                current.stat1 += targets.stat1 / steps;
+
+                current.stat2 += targets.stat2 / steps;
+
+                current.stat3 += targets.stat3 / steps;
+
+                document.getElementById('heroStat1').innerText = Math.floor(current.stat1);
+
+                document.getElementById('heroStat2').innerText = current.stat2.toFixed(1) + '%';
+
+                document.getElementById('heroStat3').innerText = Math.floor(current.stat3);
+
+                if (current.stat1 >= targets.stat1) { clearInterval(timer); document.getElementById('heroStat1').innerText = targets.stat1; document.getElementById('heroStat2').innerText = targets.stat2 + '%'; document.getElementById('heroStat3').innerText = targets.stat3; }
+
+            }, interval);
+
+        };
+
+        setTimeout(() => window.animateStats(), 500);
+
+
+
+        window.scrollToFeatures = () => { document.getElementById('featuresSection').scrollIntoView({ behavior: 'smooth' }); };
+
+
+
+        window.updateFormProgress = () => {
+
+            const type = document.getElementById('r_type').value;
+
+            const item = document.getElementById('r_item').value;
+
+            const desc = document.getElementById('r_desc').value;
+
+            const image = document.getElementById('r_image').files.length > 0;
+
+            const lat = document.getElementById('r_lat').value;
+
+            const phone = document.getElementById('r_phone').value;
+
+            let progress = 0;
+
+            if (type) progress += 15;
+
+            if (item) progress += 20;
+
+            if (desc) progress += 25;
+
+            if (image) progress += 20;
+
+            if (lat) progress += 15;
+
+            if (phone) progress += 5;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            document.getElementById('formProgress').innerText = progress + '%';
+
+        };
+
+
+
+        window.updateCharCount = () => {
+    const desc = document.getElementById('r_desc').value;
+    const count = desc.length;
+    const counter = document.getElementById('charCount');
+    
+    counter.innerText = count + ' / 500';
+    counter.classList.remove('text-green-400', 'text-yellow-400', 'text-red-400');
+    
+    if (count < 50) {
+        counter.classList.add('text-red-400'); // Too short
+    } else if (count < 300) {
+        counter.classList.add('text-green-400'); // Good length
+    } else if (count < 450) {
+        counter.classList.add('text-yellow-400'); // Getting long
+    } else {
+        counter.classList.add('text-red-400'); // Too long
+    }
+};
+
+
+      window.showAutoComplete = (value) => {
+    const container = document.getElementById('autoComplete');
+    if (value.length < 2) { 
+        container.classList.add('hidden-ui'); 
+        return; 
+    }
+    
+    const lowerVal = value.toLowerCase();
+
+    // 1. Search Historical Items (Existing logic)
+    const historySuggestions = [...new Set(globalData.map(i => i.item))]
+        .filter(s => s.toLowerCase().includes(lowerVal));
+
+    // 2. Search Locations (New logic)
+    const locationSuggestions = Object.keys(CAMPUS_LOCATIONS)
+        .filter(k => k.includes(lowerVal))
+        .map(k => CAMPUS_LOCATIONS[k].name); // Map keyword to Display Name
+
+    // Combine and unique
+    const allSuggestions = [...new Set([...historySuggestions, ...locationSuggestions])].slice(0, 6);
+
+    if (allSuggestions.length > 0) {
+        container.innerHTML = allSuggestions.map(m => 
+            `<div class="p-3 hover:bg-white/10 cursor-pointer text-sm text-slate-300 transition flex items-center gap-2" 
+                  onclick="window.selectSuggestion('${m}')">
+                <i class="fa-solid fa-search text-slate-500"></i>
+                <span>${m}</span>
+            </div>`
+        ).join('');
+        container.classList.remove('hidden-ui');
+    } else { 
+        container.classList.add('hidden-ui'); 
+    }
+};
+
+// Add this helper function to handle the click
+window.selectSuggestion = (val) => {
+    document.getElementById('r_item').value = val;
+    document.getElementById('autoComplete').classList.add('hidden-ui');
+    
+    // Check if the suggestion is a location and auto-pin it
+    const locKey = val.toLowerCase();
+    // We check if the selected text matches a location keyword logic
+    const foundLoc = Object.values(CAMPUS_LOCATIONS).find(l => l.name === val);
+    
+    if(foundLoc) {
+        if(mapInstance) {
+             mapInstance.setView([foundLoc.lat, foundLoc.lng], 18);
+             if (markerInstance) mapInstance.removeLayer(markerInstance);
+             const customMarker = L.divIcon({ className: 'custom-pin', html: `<div class="pin-pulse"></div><div class="pin-inner"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] });
+             markerInstance = L.marker([foundLoc.lat, foundLoc.lng], { icon: customMarker }).addTo(mapInstance);
+             document.getElementById('r_lat').value = foundLoc.lat;
+             document.getElementById('r_lng').value = foundLoc.lng;
+             window.showToast(`📍 Auto-pinned: ${val}`, 'success');
+        }
+    }
+};
+
+
+
+        window.removeImage = () => {
+
+            document.getElementById('r_image').value = '';
+
+            document.getElementById('imagePreviewContainer').classList.add('hidden-ui');
+
+            document.getElementById('aiStatus').classList.add('hidden-ui');
+
+            window.updateFormProgress();
+
+        };
+
+
+
+        window.useCurrentLocation = () => {
+
+            if (navigator.geolocation) {
+
+                navigator.geolocation.getCurrentPosition((pos) => {
+
+                    const lat = pos.coords.latitude;
+
+                    const lng = pos.coords.longitude;
+
+                    if (mapInstance) {
+
+                        mapInstance.setView([lat, lng], 16);
+
+                        if (markerInstance) mapInstance.removeLayer(markerInstance);
+
+                        const customMarker = L.divIcon({ className: 'custom-pin', html: `<div class="pin-pulse"></div><div class="pin-inner"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] });
+
+                        markerInstance = L.marker([lat, lng], {icon: customMarker}).addTo(mapInstance);
+
+                        document.getElementById('r_lat').value = lat;
+
+                        document.getElementById('r_lng').value = lng;
+
+                        window.updateFormProgress();
+
+                        window.showToast("Location captured!", "success");
+
+                    }
+
+                });
+
+            }
+
+        };
+
+
+
+        window.filterByCategory = (category) => {
+
+            currentCategory = category;
+
+            document.querySelectorAll('.category-pill').forEach(btn => { btn.classList.remove('active', 'bg-electric-500', 'text-white'); btn.classList.add('text-slate-400'); });
+
+            event.target.classList.add('active', 'bg-electric-500', 'text-white');
+
+            event.target.classList.remove('text-slate-400');
+
+            window.renderFeed();
+
+        };
+
+
+
+        window.loadMoreItems = () => { displayedItems += 9; window.renderFeed(); };
+
+
+
+        // Helper to generate Card HTML - used for both regular and sorted feeds
+
+        function generateCardHTML(item, index) {
+
+            const isLost = item.type === 'Lost';
+
+            const badgeColor = isLost ? 'bg-red-500/10 text-red-300 border-red-500/20' : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20';
+
+            const badgeIcon = isLost ? 'fa-circle-xmark' : 'fa-circle-check';
+
+            
+
+            // XSS Prevention using escapeHTML
+
+            const safeItem = escapeHTML(item.item);
+
+            const safeDesc = escapeHTML(item.desc ? item.desc.replace('[ANONYMOUS]', '').replace(/Phone: \d+/, '').trim() : "");
+
+            const safeImage = item.image && item.image.startsWith("http") ? item.image : ""; // Basic URL check
+
+
+
+            let imageHtml = "";
+
+            if (safeImage) { 
+
+                imageHtml = `<div class="aspect-video w-full mb-4 rounded-xl overflow-hidden bg-midnight relative group/img cursor-pointer" onclick="window.openImageModal('${safeImage}')"><img src="${safeImage}" alt="${safeItem}" class="w-full h-full object-cover group-hover/img:scale-110 transition duration-700"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition flex items-end p-4"><span class="text-white text-xs font-bold"><i class="fa-solid fa-expand mr-1"></i>Click to enlarge</span></div></div>`; 
+
+            }
+
+            
+
+            let resolveBtn = "";
+
+            if (ADMIN_EMAILS.includes(currentUser?.email) || item.email === currentUser?.email) { 
+
+                resolveBtn = `<button onclick="window.resolveItem(${item.rowIndex})" class="text-[10px] bg-green-500/20 text-green-400 px-3 py-2 rounded-lg border border-green-500/30 hover:bg-green-500 hover:text-white transition font-bold tracking-wide flex items-center gap-1"><i class="fa-solid fa-check-circle"></i> RESOLVE</button>`; 
+
+            }
+
+            
+
+            let displayName = "Student"; let displayEmail = item.email;
+
+            if (item.desc && item.desc.includes('[ANONYMOUS]')) { displayName = "Anonymous Student"; displayEmail = "Hidden"; }
+
+            const safeName = escapeHTML(displayName);
+
+
+
+            let whatsappBtn = ""; let phone = item.phone || "";
+
+            if (!phone && item.desc) { const match = item.desc.match(/Phone: (\d+)/); if (match) phone = match[1]; }
+
+            if (phone) { whatsappBtn = `<a href="https://wa.me/${phone}?text=Hi, regarding your ${safeItem} on LNMIIT Portal..." target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition group"><i class="fa-brands fa-whatsapp group-hover:scale-110 transition-transform"></i></a>`; }
+
+            const mapLink = item.lat ? `<a href="https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}" target="_blank" rel="noopener noreferrer" class="w-10 h-10 flex items-center justify-center rounded-xl bg-electric-500/20 text-electric-400 hover:bg-electric-500 hover:text-white transition group"><i class="fa-solid fa-location-arrow group-hover:animate-bounce"></i></a>` : '';
+
+            
+
+            const timeAgo = item.date ? getTimeAgo(new Date(item.date)) : 'Recently';
+
+
+
+            return `<div class="glass-panel p-6 rounded-3xl hover:bg-white/5 transition duration-500 break-inside-avoid mb-6 group border border-white/5 hover:border-electric-500/30 card-hover animate-slide-up" style="animation-delay: ${index * 0.05}s"><div class="flex justify-between items-start mb-4"><span class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-full border ${badgeColor} flex items-center gap-1"><i class="fa-solid ${badgeIcon}"></i>${item.type}</span><span class="text-[10px] text-slate-500 font-mono flex items-center gap-1"><i class="fa-solid fa-clock"></i>${timeAgo}</span></div>${imageHtml}<h3 class="font-display font-bold text-white text-xl leading-tight mb-3 group-hover:text-electric-400 transition-colors">${safeItem}</h3><p class="text-slate-400 text-sm mb-6 leading-relaxed line-clamp-3">${safeDesc}</p><div class="flex items-center gap-3 pt-4 border-t border-white/5"><div class="flex-1 min-w-0"><p class="text-xs text-white font-bold truncate">${safeName}</p>${displayEmail !== 'Hidden' ? `<a href="mailto:${item.email}" class="text-[10px] text-slate-500 hover:text-electric-400 transition truncate block">${item.email}</a>` : '<span class="text-[10px] text-slate-600">Hidden</span>'}</div><div class="flex items-center gap-2 flex-shrink-0">${whatsappBtn}${mapLink}${resolveBtn}</div></div></div>`;
+
+        }
+
+
+
+        // Helper to render sorted items specifically
+
+        function renderSortedItems(filtered) {
+
+            const container = document.getElementById('feedGrid');
+
+            const skeleton = document.getElementById('feedSkeleton');
+
+            skeleton.classList.add('hidden-ui');
+
+            container.innerHTML = "";
+
+            const itemsToShow = filtered.slice(0, displayedItems);
+
+            
+
+            if (itemsToShow.length === 0) {
+
+                container.innerHTML = `<div class="col-span-full text-center py-20"><div class="w-24 h-24 mx-auto mb-6 bg-electric-500/10 rounded-3xl flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-5xl text-slate-700"></i></div><p class="font-bold text-white text-xl mb-2">No items found</p><p class="text-slate-500 text-sm">Try adjusting your search or filters</p></div>`;
+
+                return;
+
+            }
+
+            
+
+            itemsToShow.forEach((item, index) => {
+
+                container.innerHTML += generateCardHTML(item, index);
+
+            });
+
+            const loadMoreBtn = document.getElementById('loadMoreContainer');
+
+            if (filtered.length > displayedItems) { loadMoreBtn.classList.remove('hidden-ui'); } else { loadMoreBtn.classList.add('hidden-ui'); }
+
+        }
+
+
+
+        window.renderFeed = () => {
+
+            const container = document.getElementById('feedGrid');
+
+            const skeleton = document.getElementById('feedSkeleton');
+
+            const search = document.getElementById('feedSearch').value.toLowerCase();
+
+            const filter = document.getElementById('feedFilter').value;
+
+            const sort = document.getElementById('feedSort').value;
+
+            
+
+            skeleton.classList.remove('hidden-ui');
+
+            container.innerHTML = "";
+
+            
+
+            setTimeout(() => {
+
+                skeleton.classList.add('hidden-ui');
+
+                const totalResolved = globalData.filter(i => i.status === 'Resolved').length;
+
+                const totalItems = globalData.length;
+
+                const activeItems = globalData.filter(i => i.status !== 'Resolved').length;
+
+                const uniqueUsers = [...new Set(globalData.map(i => i.email))].length;
+
+                const rate = totalItems > 0 ? ((totalResolved / totalItems) * 100).toFixed(1) : 0;
+
+                
+
+                document.getElementById('stat_recovered').innerText = totalResolved;
+
+                document.getElementById('stat_rate').innerText = rate + "%";
+
+                document.getElementById('stat_active').innerText = activeItems;
+
+                document.getElementById('stat_users').innerText = uniqueUsers;
+
+
+
+                let filtered = globalData.filter(item => {
+
+                    const iName = item.item ? item.item.toLowerCase() : "";
+
+                    const iDesc = item.desc ? item.desc.toLowerCase() : "";
+
+                    const matchesSearch = (iName.includes(search) || iDesc.includes(search));
+
+                    const matchesType = (filter === "All" || item.type === filter);
+
+                    // --- NEW SMART CATEGORY LOGIC START ---
+let matchesCategory = false;
+
+if (currentCategory === 'All') {
+    matchesCategory = true;
+} else {
+    // Define keywords for each category badge
+    const categoryKeywords = {
+        'Electronics': ['phone', 'mobile', 'laptop', 'charger', 'mouse', 'keyboard', 'watch', 'airpods', 'earbuds', 'headphone', 'camera', 'electronic'],
+        'ID Card': ['id', 'card', 'identity', 'license', 'badge'],
+        'Books': ['book', 'novel', 'notes', 'register', 'notebook', 'paper', 'guide'],
+        'Water Bottle': ['bottle', 'flask', 'sipper', 'thermos', 'mug', 'cup']
+    };
+
+    // Get keywords for the selected category (or default to the category name itself)
+    const keywords = categoryKeywords[currentCategory] || [currentCategory.toLowerCase()];
+    
+    // Check if the Item Name OR Description contains any of the keywords
+    const combinedText = (iName + " " + iDesc).toLowerCase();
+    matchesCategory = keywords.some(key => combinedText.includes(key));
+}
+// --- NEW SMART CATEGORY LOGIC END ---
+
+                    return matchesSearch && matchesType && matchesCategory && item.status !== 'Resolved';
+
+                });
+
+
+
+                if (sort === 'recent') { 
+
+                    filtered.sort((a, b) => new Date(b.date) - new Date(a.date)); 
+
+                    renderSortedItems(filtered);
+
+                } else if (sort === 'match') { 
+
+                    filtered.sort((a, b) => { 
+
+                        const scoreA = calculateSimilarity(a.item + " " + a.desc, search); 
+
+                        const scoreB = calculateSimilarity(b.item + " " + b.desc, search); 
+
+                        return scoreB - scoreA; 
+
+                    }); 
+
+                    renderSortedItems(filtered);
+
+                } else if (sort === 'distance') {
+
+                    // FIX #4: Async Distance Sort
+
+                    if (navigator.geolocation) {
+
+                        navigator.geolocation.getCurrentPosition((position) => {
+
+                            const userLat = position.coords.latitude;
+
+                            const userLng = position.coords.longitude;
+
+                            
+
+                            filtered.sort((a, b) => {
+
+                                const distA = a.lat && a.lng ? getDistanceFromLatLonInKm(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng)) : 999999;
+
+                                const distB = b.lat && b.lng ? getDistanceFromLatLonInKm(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng)) : 999999;
+
+                                return distA - distB;
+
+                            });
+
+                            
+
+                            renderSortedItems(filtered);
+
+                        }, (error) => {
+
+                            window.showToast("Enable location for distance sorting", "warning");
+
+                            renderSortedItems(filtered); // Render anyway without sort
+
+                        });
+
+                        return; // Halt standard sync render, wait for async callback
+
+                    } else {
+
+                        renderSortedItems(filtered);
+
+                    }
+
+                }
+
+            }, 800);
+
+        };
+
+
+
+        function getTimeAgo(date) {
+
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            const intervals = { year: 31536000, month: 2592000, week: 604800, day: 86400, hour: 3600, minute: 60 };
+
+            for (let key in intervals) { const interval = Math.floor(seconds / intervals[key]); if (interval >= 1) { return interval + ' ' + key + (interval > 1 ? 's' : '') + ' ago'; } }
+
+            return 'Just now';
+
+        }
+
+
+
+        window.openImageModal = (imageUrl) => {
+
+            const modal = document.createElement('div');
+
+            modal.className = 'fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fade-up';
+
+            modal.innerHTML = `<button onclick="this.parentElement.remove()" class="absolute top-6 right-6 w-12 h-12 glass-panel rounded-full text-white hover:bg-white/20 transition flex items-center justify-center"><i class="fa-solid fa-times text-xl"></i></button><img src="${imageUrl}" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl" onclick="event.stopPropagation()">`;
+
+            modal.onclick = () => modal.remove();
+
+            document.body.appendChild(modal);
+
+        };
+
+
+
+        window.calculateUserKarma = () => {
+
+            if (!currentUser) return;
+
+            const userItems = globalData.filter(i => i.email === currentUser.email);
+
+            const resolvedCount = userItems.filter(i => i.status === 'Resolved').length;
+
+            const reportedCount = userItems.length;
+
+            const points = resolvedCount * 10 + reportedCount * 2;
+
+            document.getElementById('karmaScore').innerText = points;
+
+            document.getElementById('navKarmaScore').innerText = points;
+
+            document.getElementById('karmaPoints').innerText = points;
+
+            document.getElementById('profileReturned').innerText = resolvedCount;
+
+            document.getElementById('profileReported').innerText = reportedCount;
+
+            let badge = "Newcomer";
+
+            if (points > 10) badge = "Helper";
+
+            if (points > 50) badge = "Scout";
+
+            if (points > 100) badge = "Campus Hero 🏅";
+
+            if (points > 200) badge = "Legend 👑";
+
+            document.getElementById('karmaBadge').innerText = badge;
+
+            window.updateLevelProgress(points);
+
+            if (reportedCount >= 1) window.unlockAchievement(0, "First Step");
+
+            if (resolvedCount >= 5) window.unlockAchievement(1, "Helper"); 
+
+            if (resolvedCount >= 10) window.unlockAchievement(2, "Scout"); 
+
+            if (resolvedCount >= 25) window.unlockAchievement(3, "Hero"); 
+
+        };
+
+
+
+        window.switchTab = async (tab) => {
+
+            if ((tab === 'report' || tab === 'feed') && !isLocationVerified) {
+
+                // If soft blocking allows feed but not report, handle that logic here
+
+                if(tab === 'report') {
+
+                    window.showToast("Reporting disabled off-campus", "warning");
+
+                    return;
+
+                }
+
+            }
+
+            ['report', 'feed', 'qr', 'admin', 'profile','support'].forEach(t => {
+
+                const view = document.getElementById(`view-${t}`);
+
+                if (view) view.classList.add('hidden-ui');
+
+                const btn = document.getElementById(`tab-${t}`);
+
+                if (btn) { btn.classList.remove('text-white', 'btn-primary', 'bg-electric-500'); btn.classList.add('text-slate-400'); }
+
+                const mobileBtn = document.getElementById(`tab-${t}-mobile`);
+
+                if (mobileBtn) { mobileBtn.classList.remove('text-electric-400'); mobileBtn.classList.add('text-slate-400'); }
+
+            });
+
+            const view = document.getElementById(`view-${tab}`);
+
+            if (view) { view.classList.remove('hidden-ui'); view.classList.add('animate-slide-up'); }
+
+            const activeBtn = document.getElementById(`tab-${tab}`);
+
+            if (activeBtn) { activeBtn.classList.remove('text-slate-400'); activeBtn.classList.add('text-white', 'btn-primary'); }
+
+            const activeMobileBtn = document.getElementById(`tab-${tab}-mobile`);
+
+            if (activeMobileBtn) { activeMobileBtn.classList.remove('text-slate-400'); activeMobileBtn.classList.add('text-electric-400'); }
+
+            if (tab === 'report') setTimeout(() => mapInstance?.invalidateSize(), 200);
+
+            if (tab === 'admin') { setTimeout(() => { adminMapInstance?.invalidateSize(); window.renderAnalytics(); }, 200); }
+
+            if (tab === 'profile') window.calculateUserKarma();
+
+        };
+
+
+
+        const customMarker = L.divIcon({ className: 'custom-pin', html: `<div class="pin-pulse"></div><div class="pin-inner"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] });
+
+
+
+        function initMap() {
+
+            if (mapInstance) return;
+
+            const container = document.getElementById('map');
+
+            if (!container || container.offsetWidth === 0) {
+
+            setTimeout(initMap, 100);
+
+            return;
+
+            }
+
+
+
+            mapInstance = L.map('map', { zoomControl: false })
+
+            .setView(CAMPUS_CENTER, 16);
+
+
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+            maxZoom: 19
+
+            }).addTo(mapInstance);
+
+
+
+            mapInstance.on('click', e => {
+
+            if (markerInstance) mapInstance.removeLayer(markerInstance);
+
+            markerInstance = L.marker(e.latlng, { icon: customMarker }).addTo(mapInstance);
+
+            document.getElementById('r_lat').value = e.latlng.lat;
+
+            document.getElementById('r_lng').value = e.latlng.lng;
+
+            window.updateFormProgress();
+
+            });
+
+        }
+
+
+
+        function initAdminMap() {
+
+            if(adminMapInstance) return;
+
+            setTimeout(() => {
+
+                const adminMapContainer = document.getElementById('adminMap');
+
+                if(!adminMapContainer) return;
+
+                adminMapInstance = L.map('adminMap', { zoomControl: false }).setView(CAMPUS_CENTER, 16);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMapInstance);
+
+                
+
+                // Heatmap logic
+
+                const heatPoints = globalData.filter(i => i.type === 'Lost' && i.lat && i.lng).map(i => [parseFloat(i.lat), parseFloat(i.lng), 0.8]); 
+
+                if(heatPoints.length > 0) {
+
+                    heatmapLayer = L.heatLayer(heatPoints, {
+
+                        radius: 30, 
+
+                        blur: 20, 
+
+                        gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+
+                    }).addTo(adminMapInstance);
+
+                    heatmapVisible = true;
+
+                }
+
+            }, 500);
+
+        }
+
+
+
+        window.renderAnalytics = () => {
+
+            const ctx = document.getElementById('statsChart');
+
+            if (!ctx) return;
+
+            if (chartInstance) chartInstance.destroy();
+
+
+
+            const lost = globalData.filter(i => i.type === 'Lost').length;
+
+            const found = globalData.filter(i => i.type === 'Found').length;
+
+
+
+            if (lost === 0 && found === 0) {
+
+                ctx.parentElement.innerHTML = `
+
+                <div class="h-64 flex flex-col items-center justify-center">
+
+                    <i class="fa-solid fa-chart-pie text-6xl text-slate-700 mb-4"></i>
+
+                    <p class="text-slate-400 font-bold">No data available</p>
+
+                </div>`;
+
+                return;
+
+            }
+
+
+
+            chartInstance = new Chart(ctx, {
+
+                type: 'doughnut',
+
+                data: {
+
+                labels: ['Lost', 'Found'],
+
+                datasets: [{ data: [lost, found] }]
+
+                }
+
+            });
+
+        };
+
+
+        window.checkSentinel = () => {
+    const item = document.getElementById('r_item').value.toLowerCase();
+    const type = document.getElementById('r_type').value;
+    const alertBox = document.getElementById('sentinelAlert');
+    
+    if(item.length < 3) { 
+        alertBox.classList.add('hidden-ui'); 
+        return; 
+    }
+    
+    const targetType = (type === "Lost") ? "Found" : "Lost";
+    
+    // ✅ IMPROVED: Use similarity matching
+    const matches = globalData.filter(d => {
+        if(d.type !== targetType) return false;
+        const similarity = calculateSimilarity(item, d.item.toLowerCase());
+        return similarity > 0.5; // 50% similarity threshold
+    });
+    
+    if(matches.length > 0) {
+        alertBox.classList.remove('hidden-ui');
+    } else {
+        alertBox.classList.add('hidden-ui');
+    }
+};
+
+
+
+        window.createQR = () => {
+
+            const item = document.getElementById('qr_item').value; if(!item) return;
+
+            // Generates a link to the portal with search params, or a simple mailto fallback
+
+            // Improvement: Use portal link if deployed
+
+            new QRious({ element: document.getElementById('qrcode_canvas'), value: `mailto:${currentUser.email}?subject=Found: ${item}`, size: 200 });
+
+            document.getElementById('qr_output').classList.remove('hidden-ui');
+
+        };
+
+        
+
+        window.printQR = () => {
+
+            const url = document.getElementById('qrcode_canvas').toDataURL();
+
+            const win = window.open('');
+
+            win.document.write(`<div style="text-align:center; font-family:sans-serif; margin-top:50px;"><h1>If Found, Scan Me</h1><img src="${url}" width="300"><br><br><h3>Please return to owner</h3></div>`);
+
+            win.print();
+
+        };
+
+
+
+      window.startDictation = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const r = new SpeechRecognition();
+        r.lang = "en-US";
+        r.interimResults = false; // We only want the final text
+        r.maxAlternatives = 1;
+
+        r.start();
+
+        r.onresult = (e) => {
+            // FIX: Access [0][0] because results contains alternatives
+            const transcript = e.results[0][0].transcript; 
+            
+            const descField = document.getElementById('r_desc');
+            // Add a space only if there is existing text
+            const prefix = descField.value.length > 0 ? " " : "";
+            
+            descField.value += prefix + transcript;
+            
+            window.updateCharCount();
+            window.updateFormProgress();
+        };
+
+        r.onerror = (e) => { 
+            window.showToast("Voice Error: " + e.error, "error"); 
+        };
+        
+        r.onend = () => {
+            // Optional: You could show a toast saying "Listening stopped"
+        };
+
+    } else {
+        window.showToast("Voice input not supported in this browser", "error");
+    }
+};
+
+
+        window.downloadCSV = () => {
+
+            let csv = "Type,Item,Desc,Email,Date\n"; 
+
+            globalData.forEach(r => csv += `${r.type},${r.item},${(r.desc||"").replace(/,/g," ")},${r.email},${r.date}\n`);
+
+            const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,"+csv); link.download = "lnmiit_lost_found.csv"; link.click();
+
+        };
+
+
+
+        window.submitReport = async (e) => {
+
+            e.preventDefault();
+
+            const btn = document.getElementById('submitBtn');
+
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Posting...`;
+
+            btn.disabled = true;
+
+            try {
+
+                let imageUrl = "";
+
+                const fileInput = document.getElementById('r_image');
+
+                if(fileInput.files && fileInput.files[0]) {
+
+                    const formData = new FormData(); 
+
+                    formData.append('file', fileInput.files[0]); 
+
+                    formData.append('upload_preset', UPLOAD_PRESET);
+
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
+
+                    const data = await res.json(); 
+
+                    imageUrl = data.secure_url;
+
+                }
+
+                const isAnon = document.getElementById('r_anon').checked;
+
+                let description = document.getElementById('r_desc').value;
+
+                const phone = document.getElementById('r_phone').value;
+
+                if(phone) description += ` Phone: ${phone}`;
+
+                if(isAnon) description += ` [ANONYMOUS]`;
+
+                const payload = { action: "REPORT", type: document.getElementById('r_type').value, item: document.getElementById('r_item').value, desc: description, lat: document.getElementById('r_lat').value, lng: document.getElementById('r_lng').value, email: currentUser.email, reporter: currentUser.uid, image: imageUrl };
+
+                const res = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
+
+                const json = await res.json();
+
+                if(json.result === "success" || json.result === "Success") {
+
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#7c3aed', '#22d3ee'] });
+
+                    window.showToast("Report Posted Successfully!", "success");
+
+                    document.getElementById('reportForm').reset();
+
+                    document.getElementById('imagePreviewContainer').classList.add('hidden-ui');
+
+                    document.getElementById('aiStatus').classList.add('hidden-ui');
+
+                    window.updateFormProgress();
+
+                    window.switchTab('feed'); 
+
+                    window.fetchData();
+
+                } else { throw new Error(json.message || "Script Error"); }
+
+            } catch(err) { window.showToast("Submission Failed", "error"); console.error(err); } finally { btn.innerHTML = originalText; btn.disabled = false; }
+
+        };
+
+        
+
+        window.updateProfile = async (e) => {
+
+            e.preventDefault();
+
+            const btn = document.getElementById('saveProfileBtn');
+
+            const newName = document.getElementById('profile_name').value.trim();
+
+            const originalText = btn.innerHTML;
+
+            if(!newName) return;
+
+            if(newName.includes('@')) { window.showToast("Username cannot contain '@'", "error"); return; }
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`; btn.disabled = true;
+
+            try {
+
+                document.getElementById('userNameDisplay').innerText = newName;
+
+                localStorage.setItem('customUserName', newName);
+
+                if(currentUser) { await updateProfile(currentUser, { displayName: newName }); }
+
+                await fetch(API_URL, { method: 'POST', redirect: "follow", body: JSON.stringify({ action: "UPDATE_USERNAME", email: currentUser.email, uid: currentUser.uid, newName: newName }) });
+
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+
+                window.showToast("Profile & Username Updated!", "success");
+
+            } catch(err) { console.error(err); window.showToast("Update failed", "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
+
+        };
+
+
+
+        window.sendBroadcast = async () => {
+
+            const msg = document.getElementById('bc_msg').value;
+
+            const type = document.getElementById('bc_type').value;
+
+            if(!msg) return;
+
+            
+
+            try {
+
+                // Send to Firebase for realtime toast
+
+                await push(broadcastRef, {
+
+                    message: msg,
+
+                    type: type,
+
+                    sender: currentUser.uid,
+
+                    senderEmail: currentUser.email,
+
+                    timestamp: serverTimestamp()
+
+                });
+
+                
+
+                // Also send to GAS backend for email dispatch
+
+                await fetch(API_URL, { 
+
+                    method: 'POST', 
+
+                    redirect: 'follow',
+
+                    body: JSON.stringify({
+
+                        action: "BROADCAST",
+
+                        senderEmail: currentUser.email,
+
+                        message: msg,
+
+                        type: type
+
+                    })
+
+                });
+
+
+
+                window.showToast("Broadcast sent to all users!", "success");
+
+                document.getElementById('bc_msg').value = "";
+
+            } catch (error) {
+
+                window.showToast("Failed to send broadcast", "error");
+
+                console.error(error);
+
+            }
+
+        };
+
+
+
+        const fileToBase64 = (file) => {
+
+            return new Promise((resolve, reject) => {
+
+                const reader = new FileReader();
+
+                reader.readAsDataURL(file);
+
+                reader.onload = () => { resolve(reader.result); }; // Send full base64 string
+
+                reader.onerror = error => reject(error);
+
+            });
+
+        };
+
+
+
+        window.handleSmartUpload = async (input) => {
+
+            const file = input.files[0];
+
+            if (!file) return;
+
+            const status = document.getElementById('aiStatus');
+
+            const preview = document.getElementById('aiPreview');
+
+            const previewContainer = document.getElementById('imagePreviewContainer');
+
+            const fileLabel = document.getElementById('fileLabel');
+
+            
+
+            status.classList.remove('hidden-ui');
+
+            status.innerHTML = `<div class="flex items-center gap-2"><div class="spinner w-4 h-4"></div><span>Analyzing with Google Cloud Vision AI...</span></div>`;
+
+            previewContainer.classList.remove('hidden-ui');
+
+            
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => { preview.src = e.target.result; fileLabel.innerHTML = `<i class="fa-solid fa-check text-green-400 mr-1"></i>Photo uploaded`; };
+
+            reader.readAsDataURL(file);
+
+            
+
+            try {
+
+                const base64Image = await fileToBase64(file);
+
+                
+
+                // SECURE PROXY CALL: Send to backend instead of calling Google directly
+
+                const response = await fetch(API_URL, {
+
+                    method: 'POST',
+
+                    body: JSON.stringify({
+
+                        action: "ANALYZE_IMAGE",
+
+                        image: base64Image
+
+                    })
+
+                });
+
+                
+
+                const data = await response.json();
+
+                if (data.result !== "success") throw new Error(data.message || "AI Analysis Failed");
+
+                
+
+                // Extract results from proxy response
+
+                // Structure: data.data.responses[0]
+
+                const result = data.data.responses[0];
+
+                let detectedItems = [];
+
+                
+
+                if (result.labelAnnotations) {
+
+                    const ignored = [ "Rectangle", "Product", "Material", "Font", "Electric blue", "Magenta", "Red", "Blue", "Green", "Black", "White", "Yellow", "Orange", "Pink" ];
+
+                    result.labelAnnotations.forEach(label => { if (label.score > 0.5 && !ignored.includes(label.description)) { detectedItems.push(label.description); } });
+
+                }
+
+                if (result.fullTextAnnotation) {
+
+                    const cleanText = result.fullTextAnnotation.text.replace(/\\n/g, " ").trim();
+
+                    if (cleanText.length > 3) detectedItems.push(`Text: "${cleanText.substring(0, 30)}..."`);
+
+                }
+
+                
+
+                if (detectedItems.length > 0) {
+
+                    const currentDesc = document.getElementById('r_desc');
+
+                    const finalTags = detectedItems.slice(0, 5).join(', ');
+
+                    const newInfo = `[AI: ${finalTags}]`;
+
+                    if (!currentDesc.value.includes(newInfo)) currentDesc.value = currentDesc.value + (currentDesc.value ? " " : "") + newInfo;
+
+                    status.innerHTML = `<div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-green-400"></i><span>✨ Identified: <strong>${detectedItems[0]}</strong></span></div>`;
+
+                } else { 
+
+                    status.innerHTML = `<span class="text-slate-400">Image scanned. Try a clearer photo.</span>`; 
+
+                }
+
+                window.updateFormProgress();
+
+            } catch (error) { 
+
+                console.error("AI Error:", error); 
+
+                status.innerHTML = `<div class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i><span>AI unavailable (Using Manual Mode)</span></div>`; 
+
+            }
+
+        };
+
+
+
+        window.unlockAchievement = (index, name) => {
+
+            const items = document.querySelectorAll('.achievement-item');
+
+            if (items[index] && !items[index].classList.contains('unlocked')) {
+
+                items[index].classList.remove('locked');
+
+                items[index].classList.add('unlocked', 'achievement-badge');
+
+                items[index].querySelector('i').classList.remove('text-slate-700');
+
+                items[index].querySelector('i').classList.add('text-electric-400');
+
+                window.showToast(`🏆 Achievement Unlocked: ${name}!`, "success");
+
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+                const count = document.querySelectorAll('.achievement-item.unlocked').length;
+
+                document.getElementById('achievementCount').innerText = count;
+
+            }
+
+        };
+
+
+
+        window.updateLevelProgress = (points) => {
+
+            const levels = [0, 50, 150, 300, 500, 800, 1200];
+
+            let level = 1;
+
+            for (let i = 0; i < levels.length; i++) { if (points >= levels[i]) level = i + 1; }
+
+            document.getElementById('userLevel').innerText = level;
+
+            const nextLevel = level < levels.length ? levels[level] : levels[levels.length - 1];
+
+            const currentLevelMin = levels[level - 1];
+
+            const progress = ((points - currentLevelMin) / (nextLevel - currentLevelMin)) * 100;
+
+            document.getElementById('levelProgress').style.width = Math.min(progress, 100) + '%';
+
+            document.getElementById('nextLevelText').innerText = `Next: ${nextLevel} points`;
+
+            const ring = document.getElementById('progressRing');
+
+            if(ring) { const offset = 283 - (283 * progress / 100); ring.style.strokeDashoffset = offset; }
+
+        };
+
+
+
+        // FIX #5: Logic to actually add/remove the heatmap layer
+
+        window.toggleHeatmap = () => {
+
+            if (!adminMapInstance) {
+
+                // If toggled before map load
+
+                initAdminMap();
+
+                window.showToast("Initializing Map...", "info");
+
+                return;
+
+            }
+
+            if (!heatmapLayer) {
+
+                window.showToast("No heatmap data available", "warning");
+
+                return;
+
+            }
+
+            if (heatmapVisible) {
+
+                adminMapInstance.removeLayer(heatmapLayer);
+
+                heatmapVisible = false;
+
+                window.showToast("Heatmap hidden", "info");
+
+            } else {
+
+                heatmapLayer.addTo(adminMapInstance);
+
+                heatmapVisible = true;
+
+                window.showToast("Heatmap shown", "success");
+
+            }
+
+        };
+
+        
+
+        window.refreshAnalytics = () => { window.fetchData(); window.renderAnalytics(); window.showToast("Analytics refreshed", "success"); };
+
+        window.clearLogs = () => { if (confirm("Clear all activity logs?")) { window.showToast("Logs cleared", "success"); } };
+        // Initialize AI model on app load
+if(currentUser) {
+    setTimeout(() => {
+        loadAIModel().then(() => {
+            indexExistingImages();
+        });
+    }, 3000);
+}
+    </script>
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+    <div id="aiChatWindow" class="hidden-ui w-80 md:w-96 h-[500px] glass-panel rounded-3xl flex flex-col overflow-hidden border border-electric-500/30 shadow-2xl animate-scale-in origin-bottom-right transition-all duration-300">
+        <div class="p-4 border-b border-white/10 bg-electric-600/20 flex justify-between items-center backdrop-blur-md">
+            <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+        <i class="fa-solid fa-bolt text-white text-xs"></i>
+    </div>
+    <div>
+        <h3 class="text-sm font-bold text-white">Groq AI</h3>
+        <p class="text-[10px] text-orange-200">Powered by Llama 3</p>
+    </div>
+</div>
+            <button onclick="window.toggleAI()" class="text-slate-400 hover:text-white transition hover:rotate-90 duration-300"><i class="fa-solid fa-times"></i></button>
+        </div>
+
+        <div id="aiMessages" class="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
+            <div class="flex gap-3 animate-fade-up">
+                <div class="w-6 h-6 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-robot text-[10px]"></i></div>
+                <div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-xs text-slate-200 leading-relaxed max-w-[85%] border border-white/5 shadow-sm">
+                    Hello! I can navigate the portal for you. Try saying <b>"I found a wallet"</b> or <b>"Show me the map"</b>.
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-midnight/50 backdrop-blur-sm">
+            <form onsubmit="window.handleAIMessage(event)" class="relative">
+                <input type="text" id="aiInput" placeholder="Ask Gemini..." class="w-full pl-4 pr-12 py-3 glass-input rounded-xl text-xs focus:ring-2 focus:ring-electric-500/50 transition text-white placeholder-slate-500" autocomplete="off">
+                <button type="submit" id="aiSendBtn" class="absolute right-2 top-2 w-8 h-8 bg-gradient-to-br from-electric-500 to-blue-500 hover:from-electric-400 hover:to-blue-400 text-white rounded-lg flex items-center justify-center transition shadow-lg transform hover:scale-105">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+            <div class="text-[9px] text-center text-slate-600 mt-2 font-mono">⚡ Powered by Groq (Llama 3)</div>
+        </div>
+    </div>
+
+    <button onclick="window.toggleAI()" class="w-14 h-14 rounded-full btn-primary shadow-2xl flex items-center justify-center group hover:scale-110 transition duration-300 border-2 border-white/20 relative">
+        <i class="fa-solid fa-bolt text-xl text-white group-hover:animate-bounce"></i>
+        <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-midnight animate-pulse"></span>
+    </button>
+</div>
+</body>
+
+</html>
+
